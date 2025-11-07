@@ -14,7 +14,10 @@ const mobileToggle = document.getElementById('mobileToggle');
 const navMenu = document.getElementById('navMenu');
 const navLinks = document.querySelectorAll('.nav-link');
 
-// Navbar scroll effect
+document.getElementById("adminLoginBtn")?.addEventListener("click", () => {
+  window.location.href = "admin-login.html";
+});
+
 window.addEventListener('scroll', () => {
     if (window.scrollY > 100) {
         navbar.classList.add('scrolled');
@@ -23,12 +26,10 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Mobile menu toggle
 mobileToggle.addEventListener('click', () => {
     navMenu.classList.toggle('active');
 });
 
-// Smooth scrolling and active nav link
 navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -43,16 +44,13 @@ navLinks.forEach(link => {
             });
         }
         
-        // Update active link
         navLinks.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
         
-        // Close mobile menu
         navMenu.classList.remove('active');
     });
 });
 
-// Update active nav link on scroll
 window.addEventListener('scroll', () => {
     let current = '';
     const sections = document.querySelectorAll('section[id]');
@@ -84,11 +82,9 @@ filterButtons.forEach(button => {
     button.addEventListener('click', () => {
         const filter = button.getAttribute('data-filter');
         
-        // Update active button
         filterButtons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
         
-        // Filter projects
         projectCards.forEach(card => {
             if (filter === 'all') {
                 card.style.display = 'block';
@@ -117,12 +113,312 @@ filterButtons.forEach(button => {
 });
 
 // ========================================
-// CONTACT FORM
+// SERVICE LEARN MORE MODALS
 // ========================================
 
-/* ========================================
-   CONTACT FORM
-======================================== */
+const serviceModal = document.getElementById('serviceModal');
+const serviceModalContent = serviceModal.querySelector('.service-modal-content');
+const serviceModalClose = serviceModal.querySelector('.service-modal-close');
+const serviceModalOverlay = serviceModal.querySelector('.service-modal-overlay');
+
+const serviceData = {
+    ai: {
+        title: 'AI & Machine Learning Solutions',
+        description: 'Transform your business with cutting-edge artificial intelligence and machine learning technologies.',
+        features: [
+            'Custom AI model development and training',
+            'Natural Language Processing (NLP) solutions',
+            'Computer Vision and image recognition',
+            'Predictive analytics and forecasting',
+            'AI-powered automation and optimization',
+            'Machine learning pipeline development'
+        ],
+        benefits: [
+            'Reduce operational costs by up to 40%',
+            'Improve decision-making with data-driven insights',
+            'Automate repetitive tasks and workflows',
+            'Enhance customer experience with personalization',
+            'Gain competitive advantage through innovation'
+        ]
+    },
+    software: {
+        title: 'Custom Software Development',
+        description: 'Build scalable, secure, and tailored software solutions designed for your unique business needs.',
+        features: [
+            'Full-stack web application development',
+            'Enterprise software solutions',
+            'API development and integration',
+            'Database design and optimization',
+            'Legacy system modernization',
+            'Microservices architecture'
+        ],
+        benefits: [
+            'Tailored solutions that fit your exact requirements',
+            'Scalable architecture for future growth',
+            'Enhanced productivity and efficiency',
+            'Seamless integration with existing systems',
+            'Ongoing support and maintenance'
+        ]
+    },
+    cloud: {
+        title: 'Cloud Solutions',
+        description: 'Migrate, manage, and optimize your infrastructure with enterprise-grade cloud solutions.',
+        features: [
+            'Cloud migration and deployment',
+            'Multi-cloud and hybrid cloud strategies',
+            'Infrastructure as Code (IaC)',
+            'Cloud security and compliance',
+            'Cost optimization and monitoring',
+            'DevOps and CI/CD implementation'
+        ],
+        benefits: [
+            'Reduce infrastructure costs by up to 50%',
+            'Improve scalability and flexibility',
+            'Enhanced security and compliance',
+            '99.99% uptime and reliability',
+            'Disaster recovery and backup solutions'
+        ]
+    },
+    mobile: {
+        title: 'Mobile App Development',
+        description: 'Create exceptional mobile experiences for iOS and Android that engage and delight users.',
+        features: [
+            'Native iOS and Android development',
+            'Cross-platform development (React Native, Flutter)',
+            'Progressive Web Apps (PWA)',
+            'Mobile UI/UX design',
+            'App store optimization',
+            'Mobile backend development'
+        ],
+        benefits: [
+            'Reach millions of mobile users',
+            'Increase customer engagement',
+            'Drive revenue through mobile channels',
+            'Seamless user experience across devices',
+            'Regular updates and feature enhancements'
+        ]
+    },
+    security: {
+        title: 'Cybersecurity Solutions',
+        description: 'Protect your digital assets with comprehensive security solutions and threat management.',
+        features: [
+            'Security audits and assessments',
+            'Penetration testing and vulnerability scanning',
+            'Security Operations Center (SOC)',
+            'Incident response and forensics',
+            'Compliance and regulatory support',
+            'Security training and awareness'
+        ],
+        benefits: [
+            'Protect against cyber threats and attacks',
+            'Ensure compliance with regulations',
+            'Minimize risk and potential data breaches',
+            '24/7 security monitoring and response',
+            'Build customer trust and confidence'
+        ]
+    },
+    analytics: {
+        title: 'Data Analytics',
+        description: 'Transform data into actionable insights with advanced analytics and visualization solutions.',
+        features: [
+            'Business intelligence and reporting',
+            'Data warehousing and ETL',
+            'Real-time analytics and dashboards',
+            'Big data processing and analysis',
+            'Data visualization and storytelling',
+            'Predictive and prescriptive analytics'
+        ],
+        benefits: [
+            'Make data-driven business decisions',
+            'Identify trends and opportunities',
+            'Improve operational efficiency',
+            'Increase revenue through insights',
+            'Competitive advantage through data'
+        ]
+    }
+};
+
+document.querySelectorAll('.learn-more-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const service = e.target.closest('.learn-more-btn').dataset.service;
+        if (service && serviceData[service]) {
+            openServiceModal(serviceData[service]);
+        }
+    });
+});
+
+function openServiceModal(data) {
+    serviceModalContent.innerHTML = `
+        <h2>${data.title}</h2>
+        <p style="font-size: 1.125rem; color: var(--gray); margin-bottom: 2rem;">${data.description}</p>
+        
+        <h3>Key Features</h3>
+        <ul>
+            ${data.features.map(feature => `<li>${feature}</li>`).join('')}
+        </ul>
+        
+        <h3>Business Benefits</h3>
+        <ul>
+            ${data.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+        </ul>
+        
+        <div style="margin-top: 2rem; padding: 1.5rem; background: var(--light); border-radius: var(--radius-lg); text-align: center;">
+            <p style="margin-bottom: 1rem; color: var(--dark);">Ready to get started?</p>
+            <a href="#contact" class="btn btn-primary" onclick="closeServiceModal()">Contact Us</a>
+        </div>
+    `;
+    serviceModal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeServiceModal() {
+    serviceModal.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+serviceModalClose.addEventListener('click', closeServiceModal);
+serviceModalOverlay.addEventListener('click', closeServiceModal);
+
+// ========================================
+// PROJECT LEARN MORE MODALS
+// ========================================
+
+const projectModal = document.getElementById('projectModal');
+const projectModalContent = projectModal.querySelector('.service-modal-content');
+const projectModalClose = projectModal.querySelector('.service-modal-close');
+const projectModalOverlay = projectModal.querySelector('.service-modal-overlay');
+
+const projectData = {
+    analytics: {
+        title: 'AI-Powered Analytics Platform',
+        description: 'A comprehensive enterprise analytics solution providing real-time insights and predictive capabilities.',
+        challenge: 'Our client needed a unified platform to analyze data from multiple sources and provide actionable insights to decision-makers across the organization.',
+        solution: 'We developed a custom AI-powered analytics platform that integrates with their existing systems, processes data in real-time, and provides intuitive dashboards and predictive models.',
+        results: [
+            '60% reduction in data processing time',
+            '45% improvement in decision-making speed',
+            '$2M annual cost savings',
+            '95% user satisfaction rate'
+        ],
+        technologies: ['Python', 'TensorFlow', 'React', 'PostgreSQL', 'AWS']
+    },
+    ecommerce: {
+        title: 'E-Commerce Platform',
+        description: 'Modern shopping experience with advanced features including AI recommendations and seamless checkout.',
+        challenge: 'The client required a scalable e-commerce platform with personalized shopping experiences and high-performance capabilities.',
+        solution: 'We built a modern, responsive e-commerce platform with AI-powered recommendations, advanced search, and optimized checkout flow.',
+        results: [
+            '250% increase in conversion rate',
+            '180% growth in average order value',
+            '99.9% platform uptime',
+            '4.8/5 customer satisfaction'
+        ],
+        technologies: ['React', 'Node.js', 'MongoDB', 'Stripe', 'AWS']
+    },
+    fitness: {
+        title: 'Fitness Tracking App',
+        description: 'Health & wellness mobile app with AI coaching and personalized workout plans.',
+        challenge: 'Create an engaging fitness app that provides personalized coaching and tracks user progress across multiple metrics.',
+        solution: 'Developed a cross-platform mobile app with AI-powered coaching, social features, and comprehensive health tracking.',
+        results: [
+            '500K+ active users',
+            '4.7 star app store rating',
+            '85% user retention rate',
+            'Featured in App Store'
+        ],
+        technologies: ['React Native', 'Node.js', 'TensorFlow', 'Firebase']
+    },
+    cloud: {
+        title: 'Cloud Infrastructure Migration',
+        description: 'Enterprise-scale AWS migration and optimization for improved performance and cost efficiency.',
+        challenge: 'Migrate legacy infrastructure to cloud while maintaining zero downtime and improving performance.',
+        solution: 'Executed a phased migration strategy with Infrastructure as Code, implementing best practices for security, scalability, and cost optimization.',
+        results: [
+            '55% reduction in infrastructure costs',
+            '3x improvement in deployment speed',
+            'Zero downtime during migration',
+            '99.99% uptime achieved'
+        ],
+        technologies: ['AWS', 'Terraform', 'Docker', 'Kubernetes', 'CI/CD']
+    },
+    crm: {
+        title: 'Smart CRM System',
+        description: 'Intelligent customer relationship management with predictive analytics and automation.',
+        challenge: 'Replace outdated CRM with modern solution featuring AI-driven insights and workflow automation.',
+        solution: 'Built custom CRM platform with AI-powered lead scoring, automated workflows, and comprehensive analytics.',
+        results: [
+            '40% increase in sales productivity',
+            '65% faster lead response time',
+            '90% process automation',
+            '$1.5M additional revenue'
+        ],
+        technologies: ['React', 'Python', 'PostgreSQL', 'ML Models', 'AWS']
+    },
+    delivery: {
+        title: 'Delivery Management App',
+        description: 'Real-time tracking and route optimization for logistics and delivery services.',
+        challenge: 'Optimize delivery routes and provide real-time tracking for customers and drivers.',
+        solution: 'Created a comprehensive delivery management system with AI-powered route optimization and real-time GPS tracking.',
+        results: [
+            '35% reduction in delivery times',
+            '25% fuel cost savings',
+            '95% on-time delivery rate',
+            '50K+ deliveries per month'
+        ],
+        technologies: ['Flutter', 'Node.js', 'MongoDB', 'Google Maps API', 'Firebase']
+    }
+};
+
+document.querySelectorAll('.project-learn-more').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const project = e.target.closest('.project-learn-more').dataset.project;
+        if (project && projectData[project]) {
+            openProjectModal(projectData[project]);
+        }
+    });
+});
+
+function openProjectModal(data) {
+    projectModalContent.innerHTML = `
+        <h2>${data.title}</h2>
+        <p style="font-size: 1.125rem; color: var(--gray); margin-bottom: 2rem;">${data.description}</p>
+        
+        <h3>The Challenge</h3>
+        <p style="color: var(--gray); margin-bottom: 1.5rem;">${data.challenge}</p>
+        
+        <h3>Our Solution</h3>
+        <p style="color: var(--gray); margin-bottom: 1.5rem;">${data.solution}</p>
+        
+        <h3>Results & Impact</h3>
+        <ul>
+            ${data.results.map(result => `<li>${result}</li>`).join('')}
+        </ul>
+        
+        <h3>Technologies Used</h3>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+            ${data.technologies.map(tech => `<span class="tag">${tech}</span>`).join('')}
+        </div>
+        
+        <div style="margin-top: 2rem; padding: 1.5rem; background: var(--light); border-radius: var(--radius-lg); text-align: center;">
+            <p style="margin-bottom: 1rem; color: var(--dark);">Interested in a similar solution?</p>
+            <a href="#contact" class="btn btn-primary" onclick="closeProjectModal()">Get In Touch</a>
+        </div>
+    `;
+    projectModal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeProjectModal() {
+    projectModal.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+projectModalClose.addEventListener('click', closeProjectModal);
+projectModalOverlay.addEventListener('click', closeProjectModal);
+
+// ========================================
+// CONTACT FORM
+// ========================================
 
 const contactForm = document.getElementById("contactForm");
 
@@ -172,13 +468,11 @@ const showLoginBtn = document.getElementById('showLogin');
 const showAdminLoginBtn = document.getElementById('showAdminLogin');
 const backToUserLoginBtn = document.getElementById('backToUserLogin');
 
-// Open modal
 loginBtn.addEventListener('click', () => {
     authModal.classList.add('active');
     document.body.style.overflow = 'hidden';
 });
 
-// Close modal
 function closeAuthModal() {
     authModal.classList.remove('active');
     document.body.style.overflow = '';
@@ -187,7 +481,6 @@ function closeAuthModal() {
 authClose.addEventListener('click', closeAuthModal);
 authModalOverlay.addEventListener('click', closeAuthModal);
 
-// Switch between forms
 showSignupBtn.addEventListener('click', (e) => {
     e.preventDefault();
     loginFormContainer.style.display = 'none';
@@ -216,7 +509,6 @@ backToUserLoginBtn.addEventListener('click', (e) => {
     adminLoginFormContainer.style.display = 'none';
 });
 
-// User Login Form
 const userLoginForm = document.getElementById('userLoginForm');
 if (userLoginForm) {
     userLoginForm.addEventListener('submit', (e) => {
@@ -227,17 +519,9 @@ if (userLoginForm) {
         console.log('User login:', data);
         alert('Login functionality will be implemented in the backend integration phase.');
         closeAuthModal();
-        
-        // Backend integration placeholder
-        // fetch('/api/user/login', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(data)
-        // });
     });
 }
 
-// User Signup Form
 const userSignupForm = document.getElementById('userSignupForm');
 if (userSignupForm) {
     userSignupForm.addEventListener('submit', (e) => {
@@ -245,7 +529,6 @@ if (userSignupForm) {
         const formData = new FormData(userSignupForm);
         const data = Object.fromEntries(formData);
         
-        // Validate passwords match
         if (data.password !== data.confirmPassword) {
             alert('Passwords do not match!');
             return;
@@ -254,56 +537,141 @@ if (userSignupForm) {
         console.log('User signup:', data);
         alert('Account created successfully! You can now login.');
         
-        // Switch to login form
         loginFormContainer.style.display = 'block';
         signupFormContainer.style.display = 'none';
         userSignupForm.reset();
-        
-        // Backend integration placeholder
-        // fetch('/api/user/signup', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(data)
-        // });
     });
 }
 
-// Admin Login Form
 const adminLoginFormSubmit = document.getElementById('adminLoginFormSubmit');
+
 if (adminLoginFormSubmit) {
-    adminLoginFormSubmit.addEventListener('submit', (e) => {
+    adminLoginFormSubmit.addEventListener('submit', async (e) => {
         e.preventDefault();
+
         const formData = new FormData(adminLoginFormSubmit);
         const data = Object.fromEntries(formData);
-        
-        console.log('Admin login:', data);
-        alert('Admin authentication will be implemented in the backend integration phase.');
-        closeAuthModal();
-        
-        // Backend integration placeholder
-        // fetch('/api/admin/login', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(data)
-        // });
+
+        try {
+            // Check if server is running first
+            try {
+                const healthCheck = await fetch('/api/health');
+                if (!healthCheck.ok) {
+                    throw new Error('Server health check failed');
+                }
+            } catch (healthError) {
+                alert("❌ Cannot connect to server. Please make sure:\n1. The backend server is running (npm start)\n2. Server is running on http://localhost:3000\n3. No firewall is blocking the connection");
+                console.error('Server health check failed:', healthError);
+                return;
+            }
+
+            // Call backend login endpoint
+            const response = await fetch('/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: data.email,
+                    password: data.password
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+                throw new Error(errorData.error || `HTTP ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success && result.token) {
+                // Store token in localStorage
+                localStorage.setItem('adminToken', result.token);
+                localStorage.setItem('adminUser', JSON.stringify(result.user));
+                
+                // Close modal & redirect to admin dashboard
+                closeAuthModal();
+                window.location.href = "admin.html";
+            } else {
+                alert("❌ " + (result.error || 'Login failed'));
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                alert("❌ Cannot connect to server. Please make sure:\n1. The backend server is running (npm start)\n2. Server is running on http://localhost:3000\n3. No firewall is blocking the connection");
+            } else {
+                alert("❌ Login failed: " + error.message);
+            }
+        }
     });
 }
 
-// Close modal on escape key
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && authModal.classList.contains('active')) {
-        closeAuthModal();
+    if (e.key === 'Escape') {
+        if (authModal.classList.contains('active')) closeAuthModal();
+        if (serviceModal.classList.contains('show')) closeServiceModal();
+        if (projectModal.classList.contains('show')) closeProjectModal();
+        if (resumeModal.classList.contains('show')) closeResumeModal();
     }
 });
 
 // ========================================
-// ADMIN LOGIN FORM (Old - Remove if exists)
+// RESUME BUILDER MODAL
 // ========================================
 
-// Remove old admin login form code
-const oldAdminLoginForm = document.getElementById('adminLoginForm');
-if (oldAdminLoginForm && oldAdminLoginForm !== adminLoginFormSubmit) {
-    // This is just a safety check for old code
+const openResumeModalBtn = document.getElementById('openResumeModal');
+const resumeModal = document.getElementById('resumeModal');
+const closeResumeModalBtn = document.getElementById('closeResumeModal');
+const resumeModalOverlay = resumeModal.querySelector('.resume-modal__overlay');
+
+const resumeFormStep = document.getElementById('resumeFormStep');
+const resumeTemplateStep = document.getElementById('resumeTemplateStep');
+const resumeForm = document.getElementById('resumeForm');
+
+let resumeFormData = {};
+
+openResumeModalBtn.addEventListener('click', () => {
+    resumeModal.classList.add('show');
+    resumeFormStep.classList.add('active');
+    resumeTemplateStep.classList.remove('active');
+    document.body.style.overflow = 'hidden';
+});
+
+function closeResumeModal() {
+    resumeModal.classList.remove('show');
+    resumeFormStep.classList.remove('active');
+    resumeTemplateStep.classList.remove('active');
+    document.body.style.overflow = '';
+    resumeForm.reset();
+    resumeFormData = {};
+}
+
+closeResumeModalBtn.addEventListener('click', closeResumeModal);
+resumeModalOverlay.addEventListener('click', closeResumeModal);
+
+resumeForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(resumeForm);
+    resumeFormData = Object.fromEntries(formData);
+    
+    resumeFormStep.classList.remove('active');
+    resumeTemplateStep.classList.add('active');
+});
+
+document.querySelectorAll('.template-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const template = card.dataset.template;
+        generateResume(template);
+    });
+});
+
+function generateResume(template) {
+    console.log('Generating resume with template:', template);
+    console.log('Resume data:', resumeFormData);
+    
+    alert(`Resume generated successfully with ${template} template! \n\nIn production, this would generate a downloadable PDF resume with your information.`);
+    closeResumeModal();
 }
 
 // ========================================
@@ -314,13 +682,7 @@ const applyButtons = document.querySelectorAll('.apply-btn');
 
 applyButtons.forEach(button => {
     button.addEventListener('click', () => {
-        // Placeholder for job application modal/form
         alert('Job application form will be implemented in the next phase. This will open a modal with an application form and resume upload functionality.');
-        
-        // In the actual implementation, this would open a modal with:
-        // - Application form
-        // - Resume upload
-        // - AI-powered resume builder option
     });
 });
 
@@ -335,7 +697,6 @@ const chatbotInput = document.getElementById('chatbotInput');
 const chatbotSend = document.getElementById('chatbotSend');
 const chatbotMessages = document.getElementById('chatbotMessages');
 
-// Toggle chatbot window
 chatbotButton.addEventListener('click', () => {
     chatbotWindow.classList.toggle('active');
 });
@@ -344,15 +705,12 @@ chatbotClose.addEventListener('click', () => {
     chatbotWindow.classList.remove('active');
 });
 
-// Send message
 function sendChatMessage() {
     const message = chatbotInput.value.trim();
     if (message) {
-        // Add user message
         addChatMessage(message, 'user');
         chatbotInput.value = '';
         
-        // Simulate bot response (replace with actual AI integration)
         setTimeout(() => {
             const botResponse = getBotResponse(message);
             addChatMessage(botResponse, 'bot');
@@ -377,7 +735,6 @@ function addChatMessage(message, type) {
 }
 
 function getBotResponse(message) {
-    // Placeholder responses (replace with actual AI chatbot)
     const responses = {
         'hello': 'Hello! How can I assist you today?',
         'hi': 'Hi there! What can I help you with?',
@@ -437,7 +794,6 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe elements for animation
 document.addEventListener('DOMContentLoaded', () => {
     const animatedElements = document.querySelectorAll('.service-card, .project-card, .blog-card, .team-card, .testimonial-card');
     
@@ -482,7 +838,6 @@ function validatePhone(phone) {
     return re.test(phone);
 }
 
-// Add real-time validation to forms
 const emailInputs = document.querySelectorAll('input[type="email"]');
 const phoneInputs = document.querySelectorAll('input[type="tel"]');
 
@@ -524,7 +879,6 @@ function animateCounter(element, target) {
     }, 20);
 }
 
-// Animate stats when they come into view
 const statNumbers = document.querySelectorAll('.stat-number');
 let statsAnimated = false;
 

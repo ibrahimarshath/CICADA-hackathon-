@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Mastersolis Infotech</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'primary': '#9d8f89',
+            'primary-dark': '#6d3d5f',
+            'primary-light': '#9295ba',
+            'secondary': '#c56567',
+            'accent': '#a67552',
+            'dark': '#2b2b2b',
+            'gray': '#5a5a5a',
+            'gray-light': '#d7d5d4',
+            'light': '#f5f3f1',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .gradient-primary {
+      background: linear-gradient(135deg, #9d8f89 0%, #6d3d5f 100%);
+    }
+    .gradient-secondary {
+      background: linear-gradient(135deg, #c56567 0%, #a67552 100%);
+    }
+    .gradient-tertiary {
+      background: linear-gradient(135deg, #9295ba 0%, #c56567 100%);
+    }
+    .text-gradient-primary {
+      background: linear-gradient(135deg, #9d8f89 0%, #6d3d5f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .shadow-colored {
+      box-shadow: 0 10px 40px rgba(157, 143, 137, 0.35);
+    }
+    .shadow-colored-lg {
+      box-shadow: 0 20px 60px rgba(109, 61, 95, 0.35);
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="min-h-screen">
+    <!-- Header -->
+    <header class="gradient-primary text-white shadow-colored-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="text-3xl font-bold flex items-center gap-2">
+              <i class="fas fa-shield-alt"></i>
+              Admin Dashboard
+            </h1>
+            <p class="text-white/90 mt-1">Manage your website content and view submissions</p>
+          </div>
+          <button onclick="logout()" class="bg-white/20 hover:bg-white/30 border-2 border-white px-6 py-2 rounded-lg transition-all flex items-center gap-2 backdrop-blur-sm">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50 hover:shadow-colored transition-all hover:-translate-y-1">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray text-sm font-medium uppercase tracking-wide">Contact Messages</p>
+              <p class="text-3xl font-bold text-gradient-primary mt-2" id="messagesCount">-</p>
+            </div>
+            <div class="gradient-primary p-4 rounded-full shadow-colored">
+              <i class="fas fa-envelope text-white text-2xl"></i>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50 hover:shadow-colored transition-all hover:-translate-y-1">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray text-sm font-medium uppercase tracking-wide">Services</p>
+              <p class="text-3xl font-bold text-gradient-primary mt-2" id="servicesCount">-</p>
+            </div>
+            <div class="gradient-secondary p-4 rounded-full shadow-colored">
+              <i class="fas fa-cogs text-white text-2xl"></i>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50 hover:shadow-colored transition-all hover:-translate-y-1">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray text-sm font-medium uppercase tracking-wide">Last Updated</p>
+              <p class="text-lg font-semibold text-dark mt-2" id="lastUpdated">-</p>
+            </div>
+            <div class="gradient-tertiary p-4 rounded-full shadow-colored">
+              <i class="fas fa-clock text-white text-2xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="bg-white rounded-xl shadow-md mb-6 border border-gray-light/50">
+        <div class="border-b border-gray-light">
+          <nav class="flex -mb-px">
+            <button onclick="showSection('homepage')" class="tab-button active px-6 py-4 text-sm font-medium border-b-2 border-primary-dark text-primary-dark">
+              <i class="fas fa-home mr-2"></i>Homepage
+            </button>
+            <button onclick="showSection('about')" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray hover:text-primary-dark hover:border-primary transition-colors">
+              <i class="fas fa-info-circle mr-2"></i>About
+            </button>
+            <button onclick="showSection('services')" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray hover:text-primary-dark hover:border-primary transition-colors">
+              <i class="fas fa-cogs mr-2"></i>Services
+            </button>
+            <button onclick="showSection('messages')" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray hover:text-primary-dark hover:border-primary transition-colors">
+              <i class="fas fa-envelope mr-2"></i>Contact Messages
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Homepage Section -->
+      <div id="homepage-section" class="admin-section">
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50">
+          <h2 class="text-2xl font-bold text-dark mb-6">Homepage Content</h2>
+          <form id="homepageForm" class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-dark mb-2">Title</label>
+              <input type="text" name="title" placeholder="Welcome to Mastersolis Infotech" required
+                class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-dark mb-2">Subtitle</label>
+              <input type="text" name="subtitle" placeholder="Transforming Ideas Into Digital Reality" required
+                class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-dark mb-2">Description</label>
+              <textarea name="description" rows="4" placeholder="Empowering businesses with cutting-edge AI and technology solutions" required
+                class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-dark mb-2">Hero Image URL</label>
+              <input type="url" name="hero_image" placeholder="https://example.com/hero.jpg"
+                class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+            </div>
+            <div class="flex gap-4">
+              <button type="submit" class="gradient-primary hover:shadow-colored-lg text-white px-6 py-3 rounded-lg font-medium transition-all hover:-translate-y-0.5 shadow-colored">
+                <i class="fas fa-save mr-2"></i>Save Homepage
+              </button>
+              <button type="button" onclick="loadHomepage()" class="bg-gray-light hover:bg-gray text-dark px-6 py-3 rounded-lg font-medium transition-all">
+                <i class="fas fa-sync mr-2"></i>Load Current
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- About Section -->
+      <div id="about-section" class="admin-section hidden">
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50">
+          <h2 class="text-2xl font-bold text-dark mb-6">About Content</h2>
+          <form id="aboutForm" class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-dark mb-2">Mission</label>
+              <textarea name="mission" rows="4" placeholder="Our mission statement..." required
+                class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-dark mb-2">Vision</label>
+              <textarea name="vision" rows="4" placeholder="Our vision statement..." required
+                class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-dark mb-2">Values</label>
+              <textarea name="values" rows="4" placeholder="Our core values..." required
+                class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"></textarea>
+            </div>
+            <div class="flex gap-4">
+              <button type="submit" class="gradient-primary hover:shadow-colored-lg text-white px-6 py-3 rounded-lg font-medium transition-all hover:-translate-y-0.5 shadow-colored">
+                <i class="fas fa-save mr-2"></i>Save About
+              </button>
+              <button type="button" onclick="loadAbout()" class="bg-gray-light hover:bg-gray text-dark px-6 py-3 rounded-lg font-medium transition-all">
+                <i class="fas fa-sync mr-2"></i>Load Current
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Services Section -->
+      <div id="services-section" class="admin-section hidden">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6 border border-gray-light/50">
+          <h2 class="text-2xl font-bold text-dark mb-6">Add New Service</h2>
+          <form id="serviceForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-dark mb-2">Service Title</label>
+                <input type="text" name="title" placeholder="AI & Machine Learning" required
+                  class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-dark mb-2">Category</label>
+                <input type="text" name="category" placeholder="ai"
+                  class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-dark mb-2">Description</label>
+              <textarea name="description" rows="4" placeholder="Service description..." required
+                class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-dark mb-2">Icon Class (Font Awesome)</label>
+              <input type="text" name="icon" placeholder="fas fa-brain"
+                class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+            </div>
+            <div class="flex gap-4">
+              <button type="submit" class="gradient-secondary hover:shadow-colored-lg text-white px-6 py-3 rounded-lg font-medium transition-all hover:-translate-y-0.5 shadow-colored">
+                <i class="fas fa-plus mr-2"></i>Add Service
+              </button>
+              <button type="button" onclick="loadServices()" class="bg-gray-light hover:bg-gray text-dark px-6 py-3 rounded-lg font-medium transition-all">
+                <i class="fas fa-sync mr-2"></i>Refresh List
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50">
+          <h2 class="text-2xl font-bold text-dark mb-6">Existing Services</h2>
+          <div id="servicesList" class="text-center py-8 text-gray">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+            <p>Loading services...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Section -->
+      <div id="messages-section" class="admin-section hidden">
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50">
+          <h2 class="text-2xl font-bold text-dark mb-6">Contact Messages</h2>
+          <div id="messagesList" class="text-center py-8 text-gray">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+            <p>Loading messages...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

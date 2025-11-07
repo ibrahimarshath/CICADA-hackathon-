@@ -1,1057 +1,831 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mastersolis Infotech - Innovative IT Solutions</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mastersolis Infotech - Innovative IT Solutions</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-wrapper">
-                <div class="logo">
-                    <i class="fas fa-bolt"></i>
-                    <span>Mastersolis Infotech</span>
-                </div>
-                <button class="mobile-toggle" id="mobileToggle">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-                <ul class="nav-menu" id="navMenu">
-                    <li><a href="#home" class="nav-link active">Home</a></li>
-                    <li><a href="#about" class="nav-link">About</a></li>
-                    <li><a href="#services" class="nav-link">Services</a></li>
-                    <li><a href="#projects" class="nav-link">Projects</a></li>
-                    <li><a href="#blog" class="nav-link">Blog</a></li>
-                    <li><a href="#careers" class="nav-link">Careers</a></li>
-                    <li><a href="#contact" class="nav-link">Contact</a></li>
-                    <li><button class="login-btn" id="loginBtn"><i class="fas fa-user"></i> Login / Sign Up</button></li>
-                </ul>
-            </div>
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">
+          <i class="fas fa-bolt"></i>
+          <span>Mastersolis Infotech</span>
         </div>
-    </nav>
 
-    <!-- Home Section -->
-    <section id="home" class="hero-section">
-        <div class="hero-overlay"></div>
-        <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title animate-fade-in">Transforming Ideas Into <span class="gradient-text">Digital Reality</span></h1>
-                <p class="hero-subtitle animate-fade-in-delay">Empowering businesses with cutting-edge AI and technology solutions</p>
-                <div class="hero-buttons animate-fade-in-delay-2">
-                    <a href="#services" class="btn btn-primary">Explore Services</a>
-                    <a href="#contact" class="btn btn-outline">Get In Touch</a>
-                </div>
-            </div>
+        <button class="mobile-toggle" id="mobileToggle">
+          <span></span><span></span><span></span>
+        </button>
+
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="#home" class="nav-link active">Home</a></li>
+          <li><a href="#about" class="nav-link">About</a></li>
+          <li><a href="#services" class="nav-link">Services</a></li>
+          <li><a href="#projects" class="nav-link">Projects</a></li>
+          <li><a href="#blog" class="nav-link">Blog</a></li>
+          <li><a href="#careers" class="nav-link">Careers</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+          <li>
+            <button class="login-btn" id="loginBtn">
+              <i class="fas fa-user"></i> Login / Sign Up
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section id="home" class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title animate-fade-in">
+          Transforming Ideas Into <span class="gradient-text">Digital Reality</span>
+        </h1>
+        <p class="hero-subtitle animate-fade-in-delay">
+          Empowering businesses with cutting-edge AI and technology solutions
+        </p>
+        <div class="hero-buttons animate-fade-in-delay-2">
+          <a href="#services" class="btn btn-primary">Explore Services</a>
+          <a href="#contact" class="btn btn-outline">Get In Touch</a>
         </div>
-        <div class="hero-scroll">
-            <i class="fas fa-chevron-down"></i>
+      </div>
+    </div>
+    <div class="hero-scroll"><i class="fas fa-chevron-down"></i></div>
+  </section>
+
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <i class="fas fa-project-diagram"></i>
+          <h3 class="stat-number">500+</h3>
+          <p>Projects Completed</p>
         </div>
-    </section>
-
-    <!-- Stats Section -->
-    <section class="stats-section">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i class="fas fa-project-diagram"></i>
-                    <h3 class="stat-number">500+</h3>
-                    <p>Projects Completed</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-users"></i>
-                    <h3 class="stat-number">200+</h3>
-                    <p>Happy Clients</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-award"></i>
-                    <h3 class="stat-number">50+</h3>
-                    <p>Awards Won</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-clock"></i>
-                    <h3 class="stat-number">24/7</h3>
-                    <p>Support Available</p>
-                </div>
-            </div>
+        <div class="stat-card">
+          <i class="fas fa-users"></i>
+          <h3 class="stat-number">200+</h3>
+          <p>Happy Clients</p>
         </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="about-section section-padding">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-badge">About Us</span>
-                <h2 class="section-title">Building The Future, One Solution At A Time</h2>
-                <p class="section-description">We are a team of passionate innovators dedicated to delivering excellence</p>
-            </div>
-            
-            <div class="about-content">
-                <div class="about-grid">
-                    <div class="about-card">
-                        <div class="about-icon">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
-                        <h3>Our Mission</h3>
-                        <p>To empower businesses worldwide with innovative technology solutions that drive growth, efficiency, and digital transformation in an ever-evolving landscape.</p>
-                    </div>
-                    <div class="about-card">
-                        <div class="about-icon">
-                            <i class="fas fa-eye"></i>
-                        </div>
-                        <h3>Our Vision</h3>
-                        <p>To be the global leader in AI-powered solutions, creating a future where technology seamlessly enhances every aspect of business and life.</p>
-                    </div>
-                    <div class="about-card">
-                        <div class="about-icon">
-                            <i class="fas fa-heart"></i>
-                        </div>
-                        <h3>Our Values</h3>
-                        <p>Innovation, integrity, excellence, and customer-centricity are the pillars that guide every decision we make and every solution we deliver.</p>
-                    </div>
-                </div>
-
-                <!-- Team Section -->
-                <div class="team-section">
-                    <h3 class="subsection-title">Meet Our Leadership</h3>
-                    <div class="team-grid">
-                        <div class="team-card">
-                            <div class="team-image">
-                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop" alt="Team Member">
-                                <div class="team-overlay">
-                                    <div class="social-links">
-                                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                                        <a href="#"><i class="fab fa-twitter"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <h4>John Anderson</h4>
-                            <p class="team-role">CEO & Founder</p>
-                        </div>
-                        <div class="team-card">
-                            <div class="team-image">
-                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop" alt="Team Member">
-                                <div class="team-overlay">
-                                    <div class="social-links">
-                                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                                        <a href="#"><i class="fab fa-twitter"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <h4>Sarah Mitchell</h4>
-                            <p class="team-role">CTO</p>
-                        </div>
-                        <div class="team-card">
-                            <div class="team-image">
-                                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop" alt="Team Member">
-                                <div class="team-overlay">
-                                    <div class="social-links">
-                                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                                        <a href="#"><i class="fab fa-twitter"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <h4>Michael Chen</h4>
-                            <p class="team-role">Head of AI</p>
-                        </div>
-                        <div class="team-card">
-                            <div class="team-image">
-                                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop" alt="Team Member">
-                                <div class="team-overlay">
-                                    <div class="social-links">
-                                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                                        <a href="#"><i class="fab fa-twitter"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <h4>Emma Rodriguez</h4>
-                            <p class="team-role">Design Director</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Milestones -->
-                <div class="milestones-section">
-                    <h3 class="subsection-title">Our Journey</h3>
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h4>2020</h4>
-                                <p>Founded Mastersolis Infotech with a vision to revolutionize IT solutions</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h4>2021</h4>
-                                <p>Reached 100+ clients and expanded our AI capabilities</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h4>2023</h4>
-                                <p>Won Best Innovation Award and opened international offices</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h4>2025</h4>
-                                <p>Leading the industry with 500+ successful projects</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="stat-card">
+          <i class="fas fa-award"></i>
+          <h3 class="stat-number">50+</h3>
+          <p>Awards Won</p>
         </div>
-    </section>
-
-    <!-- Services Section -->
-    <section id="services" class="services-section section-padding">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-badge">Our Services</span>
-                <h2 class="section-title">Comprehensive Solutions For Your Business</h2>
-                <p class="section-description">From AI integration to custom development, we've got you covered</p>
-            </div>
-
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3>AI & Machine Learning</h3>
-                    <p>Harness the power of artificial intelligence to automate processes, gain insights, and make data-driven decisions.</p>
-                    <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Predictive Analytics</li>
-                        <li><i class="fas fa-check"></i> Natural Language Processing</li>
-                        <li><i class="fas fa-check"></i> Computer Vision</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
-                </div>
-
-                <div class="service-card featured">
-                    <div class="featured-badge">Popular</div>
-                    <div class="service-icon">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <h3>Custom Software Development</h3>
-                    <p>Tailored software solutions designed specifically for your business needs, scalable and future-ready.</p>
-                    <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Web Applications</li>
-                        <li><i class="fas fa-check"></i> Mobile Apps</li>
-                        <li><i class="fas fa-check"></i> Enterprise Solutions</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
-                </div>
-
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-cloud"></i>
-                    </div>
-                    <h3>Cloud Solutions</h3>
-                    <p>Migrate, manage, and optimize your infrastructure with our comprehensive cloud services.</p>
-                    <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Cloud Migration</li>
-                        <li><i class="fas fa-check"></i> DevOps Services</li>
-                        <li><i class="fas fa-check"></i> Cloud Security</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
-                </div>
-
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h3>Mobile App Development</h3>
-                    <p>Create stunning, user-friendly mobile experiences for iOS and Android platforms.</p>
-                    <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Native Apps</li>
-                        <li><i class="fas fa-check"></i> Cross-Platform</li>
-                        <li><i class="fas fa-check"></i> UI/UX Design</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
-                </div>
-
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Cybersecurity</h3>
-                    <p>Protect your digital assets with our advanced security solutions and threat management.</p>
-                    <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Security Audits</li>
-                        <li><i class="fas fa-check"></i> Penetration Testing</li>
-                        <li><i class="fas fa-check"></i> Compliance</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
-                </div>
-
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3>Data Analytics</h3>
-                    <p>Transform raw data into actionable insights with our advanced analytics and BI solutions.</p>
-                    <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Business Intelligence</li>
-                        <li><i class="fas fa-check"></i> Data Visualization</li>
-                        <li><i class="fas fa-check"></i> Reporting Tools</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
+        <div class="stat-card">
+          <i class="fas fa-clock"></i>
+          <h3 class="stat-number">24/7</h3>
+          <p>Support Available</p>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- Projects Section -->
-    <section id="projects" class="projects-section section-padding">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-badge">Portfolio</span>
-                <h2 class="section-title">Our Recent Work</h2>
-                <p class="section-description">Explore our successful projects across various industries</p>
-            </div>
+  <section id="about" class="about-section section-padding">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">About Us</span>
+        <h2 class="section-title">Building The Future, One Solution At A Time</h2>
+        <p class="section-description">We are a team of passionate innovators dedicated to delivering excellence</p>
+      </div>
 
-            <!-- Project Filters -->
-            <div class="project-filters">
-                <button class="filter-btn active" data-filter="all">All Projects</button>
-                <button class="filter-btn" data-filter="ai">AI/ML</button>
-                <button class="filter-btn" data-filter="web">Web Dev</button>
-                <button class="filter-btn" data-filter="mobile">Mobile</button>
-                <button class="filter-btn" data-filter="cloud">Cloud</button>
-            </div>
+      <div class="about-content">
+        <div class="about-grid">
+          <div class="about-card">
+            <div class="about-icon"><i class="fas fa-bullseye"></i></div>
+            <h3>Our Mission</h3>
+            <p>To empower businesses worldwide with innovative technology solutions that drive growth, efficiency, and digital transformation.</p>
+          </div>
 
-            <!-- Projects Grid -->
-            <div class="projects-grid">
-                <div class="project-card" data-category="ai web">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop" alt="Project">
-                        <div class="project-overlay">
-                            <a href="#" class="project-view"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <div class="project-tags">
-                            <span class="tag">AI</span>
-                            <span class="tag">Analytics</span>
-                        </div>
-                        <h3>E-Commerce AI Platform</h3>
-                        <p>Advanced recommendation engine for personalized shopping experiences</p>
-                    </div>
-                </div>
+          <div class="about-card">
+            <div class="about-icon"><i class="fas fa-eye"></i></div>
+            <h3>Our Vision</h3>
+            <p>To be the global leader in AI-powered solutions, creating a future where technology seamlessly enhances every aspect of business and life.</p>
+          </div>
 
-                <div class="project-card" data-category="mobile">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=600&fit=crop" alt="Project">
-                        <div class="project-overlay">
-                            <a href="#" class="project-view"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <div class="project-tags">
-                            <span class="tag">Mobile</span>
-                            <span class="tag">iOS/Android</span>
-                        </div>
-                        <h3>Healthcare App</h3>
-                        <p>Patient management system with telemedicine capabilities</p>
-                    </div>
-                </div>
-
-                <div class="project-card" data-category="web cloud">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop" alt="Project">
-                        <div class="project-overlay">
-                            <a href="#" class="project-view"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <div class="project-tags">
-                            <span class="tag">Cloud</span>
-                            <span class="tag">SaaS</span>
-                        </div>
-                        <h3>Enterprise CRM Solution</h3>
-                        <p>Scalable cloud-based customer relationship management platform</p>
-                    </div>
-                </div>
-
-                <div class="project-card" data-category="ai">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=800&h=600&fit=crop" alt="Project">
-                        <div class="project-overlay">
-                            <a href="#" class="project-view"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <div class="project-tags">
-                            <span class="tag">AI</span>
-                            <span class="tag">Computer Vision</span>
-                        </div>
-                        <h3>Smart Security System</h3>
-                        <p>AI-powered facial recognition and threat detection system</p>
-                    </div>
-                </div>
-
-                <div class="project-card" data-category="web">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600&fit=crop" alt="Project">
-                        <div class="project-overlay">
-                            <a href="#" class="project-view"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <div class="project-tags">
-                            <span class="tag">Web</span>
-                            <span class="tag">React</span>
-                        </div>
-                        <h3>Learning Management System</h3>
-                        <p>Interactive platform for online education and training</p>
-                    </div>
-                </div>
-
-                <div class="project-card" data-category="mobile cloud">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&h=600&fit=crop" alt="Project">
-                        <div class="project-overlay">
-                            <a href="#" class="project-view"><i class="fas fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <div class="project-tags">
-                            <span class="tag">Fintech</span>
-                            <span class="tag">Mobile</span>
-                        </div>
-                        <h3>Digital Banking App</h3>
-                        <p>Secure mobile banking solution with AI fraud detection</p>
-                    </div>
-                </div>
-            </div>
+          <div class="about-card">
+            <div class="about-icon"><i class="fas fa-heart"></i></div>
+            <h3>Our Values</h3>
+            <p>Innovation, integrity, excellence, and customer-centricity guide every decision and every solution we deliver.</p>
+          </div>
         </div>
-    </section>
 
-    <!-- Testimonials Section -->
-    <section class="testimonials-section section-padding">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-badge">Testimonials</span>
-                <h2 class="section-title">What Our Clients Say</h2>
-                <p class="section-description">Don't just take our word for it</p>
+        <div class="journey-section">
+          <h3 class="subsection-title">Our Journey</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <h4>2018 - Foundation</h4>
+                <p>Started with a vision to revolutionize IT solutions</p>
+              </div>
             </div>
-
-            <div class="testimonials-grid">
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="testimonial-text">"Mastersolis transformed our business with their AI solutions. The team's expertise and dedication are unmatched. Highly recommend!"</p>
-                    <div class="testimonial-author">
-                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="Client">
-                        <div>
-                            <h4>David Thompson</h4>
-                            <p>CEO, TechCorp</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="testimonial-text">"Outstanding service! They delivered our mobile app ahead of schedule and exceeded all expectations. True professionals."</p>
-                    <div class="testimonial-author">
-                        <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop" alt="Client">
-                        <div>
-                            <h4>Lisa Anderson</h4>
-                            <p>Founder, StartupHub</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="testimonial-text">"Their cloud migration services were seamless. We experienced zero downtime and improved performance significantly."</p>
-                    <div class="testimonial-author">
-                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop" alt="Client">
-                        <div>
-                            <h4>Robert Martinez</h4>
-                            <p>CTO, GlobalRetail</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <h4>2020 - Expansion</h4>
+                <p>Grew to 50+ team members and expanded services</p>
+              </div>
             </div>
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <h4>2022 - Recognition</h4>
+                <p>Won multiple industry awards for innovation</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <h4>2025 - Future</h4>
+                <p>Leading AI transformation for 200+ global clients</p>
+              </div>
+            </div>
+          </div>
         </div>
-    </section>
 
-    <!-- Blog Section -->
-    <section id="blog" class="blog-section section-padding">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-badge">Blog & News</span>
-                <h2 class="section-title">Latest Insights</h2>
-                <p class="section-description">Stay updated with our latest articles and company news</p>
+        <div class="team-section">
+          <h3 class="subsection-title">Meet Our Leadership</h3>
+          <div class="team-grid">
+            <div class="team-card">
+              <div class="team-image">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop" alt="Team Member"/>
+                <div class="team-overlay">
+                  <div class="social-links">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                  </div>
+                </div>
+              </div>
+              <h4>John Anderson</h4>
+              <p class="team-role">CEO & Founder</p>
             </div>
 
-            <div class="blog-grid">
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=500&fit=crop" alt="Blog Post">
-                        <div class="blog-category">AI & Technology</div>
-                    </div>
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span><i class="fas fa-calendar"></i> Nov 5, 2025</span>
-                            <span><i class="fas fa-clock"></i> 5 min read</span>
-                        </div>
-                        <h3>The Future of AI in Business Automation</h3>
-                        <p>Discover how artificial intelligence is revolutionizing business processes and what it means for your company's future...</p>
-                        <div class="blog-footer">
-                            <div class="blog-author">
-                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop" alt="Author">
-                                <span>John Anderson</span>
-                            </div>
-                            <a href="#" class="blog-link">Read More <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=500&fit=crop" alt="Blog Post">
-                        <div class="blog-category">Cloud Computing</div>
-                    </div>
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span><i class="fas fa-calendar"></i> Nov 3, 2025</span>
-                            <span><i class="fas fa-clock"></i> 7 min read</span>
-                        </div>
-                        <h3>Cloud Migration: A Complete Guide for 2025</h3>
-                        <p>Everything you need to know about migrating your infrastructure to the cloud, including best practices and common pitfalls...</p>
-                        <div class="blog-footer">
-                            <div class="blog-author">
-                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop" alt="Author">
-                                <span>Sarah Mitchell</span>
-                            </div>
-                            <a href="#" class="blog-link">Read More <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=500&fit=crop" alt="Blog Post">
-                        <div class="blog-category">Company News</div>
-                    </div>
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span><i class="fas fa-calendar"></i> Nov 1, 2025</span>
-                            <span><i class="fas fa-clock"></i> 3 min read</span>
-                        </div>
-                        <h3>Mastersolis Wins Best Innovation Award 2025</h3>
-                        <p>We're proud to announce that our AI-powered analytics platform has been recognized with the prestigious Innovation Award...</p>
-                        <div class="blog-footer">
-                            <div class="blog-author">
-                                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop" alt="Author">
-                                <span>Emma Rodriguez</span>
-                            </div>
-                            <a href="#" class="blog-link">Read More <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </article>
+            <div class="team-card">
+              <div class="team-image">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop" alt="Team Member"/>
+                <div class="team-overlay">
+                  <div class="social-links">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                  </div>
+                </div>
+              </div>
+              <h4>Sarah Mitchell</h4>
+              <p class="team-role">CTO</p>
             </div>
+
+            <div class="team-card">
+              <div class="team-image">
+                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop" alt="Team Member"/>
+                <div class="team-overlay">
+                  <div class="social-links">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                  </div>
+                </div>
+              </div>
+              <h4>Michael Chen</h4>
+              <p class="team-role">Head of AI</p>
+            </div>
+
+            <div class="team-card">
+              <div class="team-image">
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop" alt="Team Member"/>
+                <div class="team-overlay">
+                  <div class="social-links">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                  </div>
+                </div>
+              </div>
+              <h4>Emma Rodriguez</h4>
+              <p class="team-role">Design Director</p>
+            </div>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- Careers Section -->
-    <section id="careers" class="careers-section section-padding">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-badge">Join Our Team</span>
-                <h2 class="section-title">Build Your Career With Us</h2>
-                <p class="section-description">We're always looking for talented individuals to join our growing team</p>
-            </div>
+  <section id="services" class="services-section section-padding">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Our Services</span>
+        <h2 class="section-title">Comprehensive Technology Solutions</h2>
+        <p class="section-description">Tailored services to meet your unique business needs</p>
+      </div>
 
-            <!-- Career Benefits -->
-            <div class="benefits-grid">
-                <div class="benefit-card">
-                    <i class="fas fa-laptop-code"></i>
-                    <h4>Remote Work</h4>
-                    <p>Work from anywhere</p>
-                </div>
-                <div class="benefit-card">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h4>Learning & Development</h4>
-                    <p>Continuous growth</p>
-                </div>
-                <div class="benefit-card">
-                    <i class="fas fa-heartbeat"></i>
-                    <h4>Health Benefits</h4>
-                    <p>Comprehensive coverage</p>
-                </div>
-                <div class="benefit-card">
-                    <i class="fas fa-users"></i>
-                    <h4>Great Team</h4>
-                    <p>Collaborative culture</p>
-                </div>
-            </div>
-
-            <!-- Job Listings -->
-            <div class="jobs-container">
-                <h3 class="subsection-title">Open Positions</h3>
-                <div class="jobs-list">
-                    <div class="job-card">
-                        <div class="job-header">
-                            <div>
-                                <h3>Senior AI Engineer</h3>
-                                <div class="job-meta">
-                                    <span><i class="fas fa-map-marker-alt"></i> Remote</span>
-                                    <span><i class="fas fa-briefcase"></i> Full-time</span>
-                                    <span><i class="fas fa-clock"></i> Posted 2 days ago</span>
-                                </div>
-                            </div>
-                            <button class="btn btn-primary apply-btn">Apply Now</button>
-                        </div>
-                        <p class="job-description">We're seeking an experienced AI Engineer to lead our machine learning initiatives and develop cutting-edge solutions.</p>
-                        <div class="job-tags">
-                            <span class="tag">Python</span>
-                            <span class="tag">TensorFlow</span>
-                            <span class="tag">ML</span>
-                            <span class="tag">NLP</span>
-                        </div>
-                    </div>
-
-                    <div class="job-card">
-                        <div class="job-header">
-                            <div>
-                                <h3>Full Stack Developer</h3>
-                                <div class="job-meta">
-                                    <span><i class="fas fa-map-marker-alt"></i> Hybrid</span>
-                                    <span><i class="fas fa-briefcase"></i> Full-time</span>
-                                    <span><i class="fas fa-clock"></i> Posted 5 days ago</span>
-                                </div>
-                            </div>
-                            <button class="btn btn-primary apply-btn">Apply Now</button>
-                        </div>
-                        <p class="job-description">Join our development team to build scalable web applications using modern technologies and best practices.</p>
-                        <div class="job-tags">
-                            <span class="tag">React</span>
-                            <span class="tag">Node.js</span>
-                            <span class="tag">MongoDB</span>
-                            <span class="tag">AWS</span>
-                        </div>
-                    </div>
-
-                    <div class="job-card">
-                        <div class="job-header">
-                            <div>
-                                <h3>UX/UI Designer</h3>
-                                <div class="job-meta">
-                                    <span><i class="fas fa-map-marker-alt"></i> Remote</span>
-                                    <span><i class="fas fa-briefcase"></i> Full-time</span>
-                                    <span><i class="fas fa-clock"></i> Posted 1 week ago</span>
-                                </div>
-                            </div>
-                            <button class="btn btn-primary apply-btn">Apply Now</button>
-                        </div>
-                        <p class="job-description">Create beautiful, intuitive user experiences for our clients' digital products and platforms.</p>
-                        <div class="job-tags">
-                            <span class="tag">Figma</span>
-                            <span class="tag">Adobe XD</span>
-                            <span class="tag">UI Design</span>
-                            <span class="tag">Prototyping</span>
-                        </div>
-                    </div>
-
-                    <div class="job-card">
-                        <div class="job-header">
-                            <div>
-                                <h3>DevOps Engineer</h3>
-                                <div class="job-meta">
-                                    <span><i class="fas fa-map-marker-alt"></i> On-site</span>
-                                    <span><i class="fas fa-briefcase"></i> Full-time</span>
-                                    <span><i class="fas fa-clock"></i> Posted 3 days ago</span>
-                                </div>
-                            </div>
-                            <button class="btn btn-primary apply-btn">Apply Now</button>
-                        </div>
-                        <p class="job-description">Manage and optimize our cloud infrastructure, CI/CD pipelines, and deployment processes.</p>
-                        <div class="job-tags">
-                            <span class="tag">Docker</span>
-                            <span class="tag">Kubernetes</span>
-                            <span class="tag">AWS</span>
-                            <span class="tag">CI/CD</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Resume Builder CTA -->
-            <div class="resume-builder-cta">
-                <div class="cta-content">
-                    <i class="fas fa-file-alt"></i>
-                    <h3>Build Your Professional Resume</h3>
-                    <p>Create a standout resume with our AI-powered resume builder and increase your chances of getting hired</p>
-                    <button class="btn btn-primary">Build Resume Now</button>
-                </div>
-            </div>
+      <div class="services-grid">
+        <div class="service-card" data-service="ai">
+          <div class="service-icon"><i class="fas fa-brain"></i></div>
+          <h3>AI & Machine Learning</h3>
+          <p>Harness the power of AI to automate processes, gain insights, and drive innovation.</p>
+          <button class="learn-more-btn" data-service="ai">Learn More <i class="fas fa-arrow-right"></i></button>
         </div>
-    </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="contact-section section-padding">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-badge">Get In Touch</span>
-                <h2 class="section-title">Let's Start A Conversation</h2>
-                <p class="section-description">We'd love to hear from you. Drop us a message!</p>
+        <div class="service-card" data-service="software">
+          <div class="service-icon"><i class="fas fa-code"></i></div>
+          <h3>Custom Software Development</h3>
+          <p>Scalable, secure, and tailored software solutions built for your specific needs.</p>
+          <button class="learn-more-btn" data-service="software">Learn More <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <div class="service-card" data-service="cloud">
+          <div class="service-icon"><i class="fas fa-cloud"></i></div>
+          <h3>Cloud Solutions</h3>
+          <p>Migrate, manage, and optimize your infrastructure with cutting-edge cloud technology.</p>
+          <button class="learn-more-btn" data-service="cloud">Learn More <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <div class="service-card" data-service="mobile">
+          <div class="service-icon"><i class="fas fa-mobile-alt"></i></div>
+          <h3>Mobile App Development</h3>
+          <p>iOS and Android apps that deliver exceptional user experiences and drive engagement.</p>
+          <button class="learn-more-btn" data-service="mobile">Learn More <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <div class="service-card" data-service="security">
+          <div class="service-icon"><i class="fas fa-shield-alt"></i></div>
+          <h3>Cybersecurity</h3>
+          <p>Protect your digital assets with comprehensive security solutions and threat management.</p>
+          <button class="learn-more-btn" data-service="security">Learn More <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <div class="service-card" data-service="analytics">
+          <div class="service-icon"><i class="fas fa-chart-line"></i></div>
+          <h3>Data Analytics</h3>
+          <p>Transform data into actionable insights with advanced analytics and visualization.</p>
+          <button class="learn-more-btn" data-service="analytics">Learn More <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects" class="projects-section section-padding">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Our Work</span>
+        <h2 class="section-title">Featured Projects</h2>
+        <p class="section-description">Showcasing excellence in technology solutions</p>
+      </div>
+
+      <div class="filter-buttons">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="ai">AI & ML</button>
+        <button class="filter-btn" data-filter="web">Web</button>
+        <button class="filter-btn" data-filter="mobile">Mobile</button>
+        <button class="filter-btn" data-filter="cloud">Cloud</button>
+      </div>
+
+      <div class="projects-grid">
+        <div class="project-card" data-category="ai web">
+          <div class="project-image">
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop" alt="Project"/>
+            <div class="project-overlay">
+              <div class="project-actions">
+                <button class="project-view"><i class="fas fa-eye"></i></button>
+              </div>
             </div>
+          </div>
+          <div class="project-content">
+            <div class="project-tags">
+              <span class="tag">AI</span>
+              <span class="tag">Analytics</span>
+            </div>
+            <h3>AI-Powered Analytics Platform</h3>
+            <p>Enterprise analytics solution with real-time insights</p>
+            <button class="learn-more-btn project-learn-more" data-project="analytics">Learn More <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
 
-            <div class="contact-content">
-                <div class="contact-info">
-                    <div class="contact-card">
-                        <div class="contact-icon">
-                            <i class="fas fa-phone"></i>
-                        </div>
-                        <h4>Phone</h4>
-                        <p>+1 (555) 123-4567</p>
-                        <p>+1 (555) 765-4321</p>
-                    </div>
+        <div class="project-card" data-category="web">
+          <div class="project-image">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop" alt="Project"/>
+            <div class="project-overlay">
+              <div class="project-actions">
+                <button class="project-view"><i class="fas fa-eye"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="project-content">
+            <div class="project-tags">
+              <span class="tag">Web</span>
+              <span class="tag">React</span>
+            </div>
+            <h3>E-Commerce Platform</h3>
+            <p>Modern shopping experience with advanced features</p>
+            <button class="learn-more-btn project-learn-more" data-project="ecommerce">Learn More <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
 
-                    <div class="contact-card">
-                        <div class="contact-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <h4>Email</h4>
-                        <p>info@mastersolis.com</p>
-                        <p>support@mastersolis.com</p>
-                    </div>
+        <div class="project-card" data-category="mobile">
+          <div class="project-image">
+            <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=600&fit=crop" alt="Project"/>
+            <div class="project-overlay">
+              <div class="project-actions">
+                <button class="project-view"><i class="fas fa-eye"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="project-content">
+            <div class="project-tags">
+              <span class="tag">Mobile</span>
+              <span class="tag">iOS/Android</span>
+            </div>
+            <h3>Fitness Tracking App</h3>
+            <p>Health & wellness app with AI coaching</p>
+            <button class="learn-more-btn project-learn-more" data-project="fitness">Learn More <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
 
-                    <div class="contact-card">
-                        <div class="contact-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <h4>Office</h4>
-                        <p>123 Tech Street, Suite 500</p>
-                        <p>Silicon Valley, CA 94025</p>
-                    </div>
+        <div class="project-card" data-category="cloud ai">
+          <div class="project-image">
+            <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop" alt="Project"/>
+            <div class="project-overlay">
+              <div class="project-actions">
+                <button class="project-view"><i class="fas fa-eye"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="project-content">
+            <div class="project-tags">
+              <span class="tag">Cloud</span>
+              <span class="tag">AI</span>
+            </div>
+            <h3>Cloud Infrastructure Migration</h3>
+            <p>Enterprise-scale AWS migration and optimization</p>
+            <button class="learn-more-btn project-learn-more" data-project="cloud">Learn More <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
 
-                    <div class="contact-card">
-                        <div class="contact-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h4>Business Hours</h4>
-                        <p>Mon - Fri: 9:00 AM - 6:00 PM</p>
-                        <p>24/7 Support Available</p>
-                    </div>
+        <div class="project-card" data-category="web ai">
+          <div class="project-image">
+            <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=600&fit=crop" alt="Project"/>
+            <div class="project-overlay">
+              <div class="project-actions">
+                <button class="project-view"><i class="fas fa-eye"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="project-content">
+            <div class="project-tags">
+              <span class="tag">Web</span>
+              <span class="tag">ML</span>
+            </div>
+            <h3>Smart CRM System</h3>
+            <p>Customer management with predictive analytics</p>
+            <button class="learn-more-btn project-learn-more" data-project="crm">Learn More <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+
+        <div class="project-card" data-category="mobile">
+          <div class="project-image">
+            <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&h=600&fit=crop" alt="Project"/>
+            <div class="project-overlay">
+              <div class="project-actions">
+                <button class="project-view"><i class="fas fa-eye"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="project-content">
+            <div class="project-tags">
+              <span class="tag">Mobile</span>
+              <span class="tag">Flutter</span>
+            </div>
+            <h3>Delivery Management App</h3>
+            <p>Real-time tracking and route optimization</p>
+            <button class="learn-more-btn project-learn-more" data-project="delivery">Learn More <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials-section">
+        <h3 class="subsection-title">What Our Clients Say</h3>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">"Mastersolis transformed our business with their AI solutions. The team is professional, innovative, and delivered beyond expectations."</p>
+            <div class="testimonial-author">
+              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="Client"/>
+              <div>
+                <h4>David Johnson</h4>
+                <p>CEO, Tech Innovations Inc.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">"Outstanding cloud migration services. They made the transition seamless and our infrastructure is now more efficient than ever."</p>
+            <div class="testimonial-author">
+              <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop" alt="Client"/>
+              <div>
+                <h4>Lisa Martinez</h4>
+                <p>CTO, Global Solutions Ltd.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">"The mobile app they developed exceeded all our expectations. User engagement has increased by 300% since launch!"</p>
+            <div class="testimonial-author">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" alt="Client"/>
+              <div>
+                <h4>James Wilson</h4>
+                <p>Founder, StartupHub</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="blog" class="blog-section section-padding">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Blog</span>
+        <h2 class="section-title">Latest Insights & News</h2>
+        <p class="section-description">Stay updated with the latest in technology and innovation</p>
+      </div>
+
+      <div class="blog-grid">
+        <div class="blog-card">
+          <div class="blog-image">
+            <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop" alt="Blog"/>
+            <span class="blog-category">AI & ML</span>
+          </div>
+          <div class="blog-content">
+            <div class="blog-meta">
+              <span><i class="fas fa-calendar"></i> Nov 5, 2025</span>
+              <span><i class="fas fa-user"></i> Sarah Mitchell</span>
+            </div>
+            <h3>The Future of AI in Business</h3>
+            <p>Exploring how artificial intelligence is revolutionizing modern business operations and decision-making processes.</p>
+            <a href="#" class="blog-link">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="blog-card">
+          <div class="blog-image">
+            <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop" alt="Blog"/>
+            <span class="blog-category">Cloud</span>
+          </div>
+          <div class="blog-content">
+            <div class="blog-meta">
+              <span><i class="fas fa-calendar"></i> Nov 3, 2025</span>
+              <span><i class="fas fa-user"></i> Michael Chen</span>
+            </div>
+            <h3>Cloud Migration Best Practices</h3>
+            <p>Essential strategies for successful cloud migration, from planning to implementation and optimization.</p>
+            <a href="#" class="blog-link">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="blog-card">
+          <div class="blog-image">
+            <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&h=600&fit=crop" alt="Blog"/>
+            <span class="blog-category">Development</span>
+          </div>
+          <div class="blog-content">
+            <div class="blog-meta">
+              <span><i class="fas fa-calendar"></i> Nov 1, 2025</span>
+              <span><i class="fas fa-user"></i> Emma Rodriguez</span>
+            </div>
+            <h3>Modern Web Development Trends</h3>
+            <p>Discover the latest trends shaping web development in 2025, from frameworks to design patterns.</p>
+            <a href="#" class="blog-link">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="careers" class="careers-section section-padding">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Careers</span>
+        <h2 class="section-title">Join Our Growing Team</h2>
+        <p class="section-description">Be part of something extraordinary</p>
+      </div>
+
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <i class="fas fa-laptop-house"></i>
+          <h4>Remote Friendly</h4>
+          <p>Work from anywhere with flexible hours</p>
+        </div>
+        <div class="benefit-card">
+          <i class="fas fa-graduation-cap"></i>
+          <h4>Learning Budget</h4>
+          <p>Annual budget for courses and conferences</p>
+        </div>
+        <div class="benefit-card">
+          <i class="fas fa-heartbeat"></i>
+          <h4>Health Benefits</h4>
+          <p>Comprehensive health insurance coverage</p>
+        </div>
+        <div class="benefit-card">
+          <i class="fas fa-users"></i>
+          <h4>Great Culture</h4>
+          <p>Collaborative and inclusive environment</p>
+        </div>
+      </div>
+
+      <div class="jobs-container">
+        <h3 class="subsection-title">Open Positions</h3>
+        <div class="jobs-list">
+          <div class="job-card">
+            <div class="job-header">
+              <div>
+                <h4>Senior Full-Stack Developer</h4>
+                <div class="job-meta">
+                  <span><i class="fas fa-map-marker-alt"></i> Remote / Hybrid</span>
+                  <span><i class="fas fa-briefcase"></i> Full-time</span>
+                  <span><i class="fas fa-dollar-sign"></i> $120k - $160k</span>
                 </div>
+              </div>
+              <button class="btn btn-primary apply-btn">Apply Now</button>
+            </div>
+            <p class="job-description">Build scalable apps, collaborate with cross-functional teams, and ship quality features.</p>
+            <div class="job-tags">
+              <span class="tag">React</span>
+              <span class="tag">Node.js</span>
+              <span class="tag">PostgreSQL</span>
+              <span class="tag">AWS</span>
+            </div>
+          </div>
+
+          <div class="job-card">
+            <div class="job-header">
+              <div>
+                <h4>AI/ML Engineer</h4>
+                <div class="job-meta">
+                  <span><i class="fas fa-map-marker-alt"></i> San Francisco, CA</span>
+                  <span><i class="fas fa-briefcase"></i> Full-time</span>
+                  <span><i class="fas fa-dollar-sign"></i> $140k - $180k</span>
+                </div>
+              </div>
+              <button class="btn btn-primary apply-btn">Apply Now</button>
+            </div>
+            <p class="job-description">Develop cutting-edge AI models, implement ML pipelines, and drive innovation in AI solutions.</p>
+            <div class="job-tags">
+              <span class="tag">Python</span>
+              <span class="tag">TensorFlow</span>
+              <span class="tag">PyTorch</span>
+              <span class="tag">Kubernetes</span>
+            </div>
+          </div>
+
+          <div class="job-card">
+            <div class="job-header">
+              <div>
+                <h4>UI/UX Designer</h4>
+                <div class="job-meta">
+                  <span><i class="fas fa-map-marker-alt"></i> Remote</span>
+                  <span><i class="fas fa-briefcase"></i> Full-time</span>
+                  <span><i class="fas fa-dollar-sign"></i> $90k - $120k</span>
+                </div>
+              </div>
+              <button class="btn btn-primary apply-btn">Apply Now</button>
+            </div>
+            <p class="job-description">Create beautiful, intuitive interfaces and exceptional user experiences for our products.</p>
+            <div class="job-tags">
+              <span class="tag">Figma</span>
+              <span class="tag">Adobe XD</span>
+              <span class="tag">User Research</span>
+              <span class="tag">Prototyping</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="resume-builder-cta">
+        <div class="cta-content">
+          <i class="fas fa-file-alt"></i>
+          <h3>Build Your Professional Resume</h3>
+          <p>Create a standout resume with our builder and increase your chances of getting hired</p>
+          <button id="openResumeModal" class="btn btn-primary">Build Resume Now</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact-section section-padding">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Get In Touch</span>
+        <h2 class="section-title">Let's Start A Conversation</h2>
+        <p class="section-description">We'd love to hear from you</p>
+      </div>
+
+      <div class="contact-content">
+        <div class="contact-info">
+          <div class="contact-card">
+            <div class="contact-icon"><i class="fas fa-phone"></i></div>
+            <h4>Phone</h4>
+            <p>+1 (555) 123-4567</p>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+            <h4>Email</h4>
+            <p>info@mastersolis.com</p>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <h4>Office</h4>
+            <p>123 Tech Street, Suite 500<br>Silicon Valley, CA 94025</p>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-icon"><i class="fas fa-clock"></i></div>
+            <h4>Hours</h4>
+            <p>Mon–Fri: 9:00–18:00<br>Support: 24/7</p>
+          </div>
+        </div>
 
         <div class="contact-form-wrapper">
-        <form class="contact-form" id="contactForm">
-
-        <div class="form-row">
-            <div class="form-group">
-                <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" required>
+          <h3>Send Message</h3>
+          <form id="contactForm">
+            <div class="form-row">
+              <input type="text" name="name" placeholder="Your Name" required/>
+              <input type="email" name="email" placeholder="Your Email" required/>
             </div>
-
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required>
+            <div class="form-row">
+              <input type="text" name="phone" placeholder="Phone"/>
+              <input type="text" name="subject" placeholder="Subject" required/>
             </div>
+            <textarea name="message" rows="4" placeholder="Your Message" required></textarea>
+            <button class="btn btn-primary btn-block" type="submit">Send Message</button>
+          </form>
         </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone">
-            </div>
-
-            <div class="form-group">
-                <label for="subject">Subject</label>
-                <input type="text" id="subject" name="subject" required>
-            </div>
-        </div>
-
-                        <div class="form-group">
-                            <label for="message">Message</label>
-                            <textarea id="message" name="message" rows="5" required></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block">
-                            Send Message <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </form>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- Login/Signup Modal -->
-    <div class="auth-modal" id="authModal">
-        <div class="auth-modal-overlay" id="authModalOverlay"></div>
-        <div class="auth-modal-content">
-            <button class="auth-close" id="authClose">
-                <i class="fas fa-times"></i>
-            </button>
-            
-            <!-- Login Form -->
-            <div class="auth-form-container" id="loginForm">
-                <div class="auth-header">
-                    <i class="fas fa-user-circle"></i>
-                    <h2>Welcome Back</h2>
-                    <p>Login to your account</p>
-                </div>
-                <form class="auth-form" id="userLoginForm">
-                    <div class="form-group">
-                        <label for="loginEmail">
-                            <i class="fas fa-envelope"></i>
-                            Email Address
-                        </label>
-                        <input type="email" id="loginEmail" name="email" placeholder="Enter your email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="loginPassword">
-                            <i class="fas fa-lock"></i>
-                            Password
-                        </label>
-                        <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
-                    </div>
-                    <div class="form-options">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="remember">
-                            <span>Remember me</span>
-                        </label>
-                        <a href="#" class="forgot-link">Forgot password?</a>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">
-                        Login <i class="fas fa-arrow-right"></i>
-                    </button>
-                </form>
-                <div class="auth-divider">
-                    <span>OR</span>
-                </div>
-                <div class="auth-switch">
-                    <p>Don't have an account? <a href="#" id="showSignup">Sign Up</a></p>
-                    <p class="admin-link-text">Are you an admin? <a href="#" id="showAdminLogin">Admin Login</a></p>
-                </div>
-            </div>
-
-            <!-- Signup Form -->
-            <div class="auth-form-container" id="signupForm" style="display: none;">
-                <div class="auth-header">
-                    <i class="fas fa-user-plus"></i>
-                    <h2>Create Account</h2>
-                    <p>Sign up to get started</p>
-                </div>
-                <form class="auth-form" id="userSignupForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="signupFirstName">
-                                <i class="fas fa-user"></i>
-                                First Name
-                            </label>
-                            <input type="text" id="signupFirstName" name="firstName" placeholder="First name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="signupLastName">
-                                <i class="fas fa-user"></i>
-                                Last Name
-                            </label>
-                            <input type="text" id="signupLastName" name="lastName" placeholder="Last name" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="signupEmail">
-                            <i class="fas fa-envelope"></i>
-                            Email Address
-                        </label>
-                        <input type="email" id="signupEmail" name="email" placeholder="Enter your email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="signupPassword">
-                            <i class="fas fa-lock"></i>
-                            Password
-                        </label>
-                        <input type="password" id="signupPassword" name="password" placeholder="Create a password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="signupConfirmPassword">
-                            <i class="fas fa-lock"></i>
-                            Confirm Password
-                        </label>
-                        <input type="password" id="signupConfirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
-                    </div>
-                    <div class="form-options">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="terms" required>
-                            <span>I agree to the Terms & Conditions</span>
-                        </label>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">
-                        Create Account <i class="fas fa-arrow-right"></i>
-                    </button>
-                </form>
-                <div class="auth-divider">
-                    <span>OR</span>
-                </div>
-                <div class="auth-switch">
-                    <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
-                </div>
-            </div>
-
-            <!-- Admin Login Form -->
-            <div class="auth-form-container" id="adminLoginForm" style="display: none;">
-                <div class="auth-header admin-header">
-                    <i class="fas fa-user-shield"></i>
-                    <h2>Admin Access</h2>
-                    <p>Secure admin login portal</p>
-                </div>
-                <form class="auth-form" id="adminLoginFormSubmit">
-                    <div class="form-group">
-                        <label for="adminEmail">
-                            <i class="fas fa-envelope"></i>
-                            Admin Email
-                        </label>
-                        <input type="email" id="adminEmail" name="adminEmail" placeholder="Enter admin email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="adminPassword">
-                            <i class="fas fa-lock"></i>
-                            Admin Password
-                        </label>
-                        <input type="password" id="adminPassword" name="adminPassword" placeholder="Enter admin password" required>
-                    </div>
-                    <div class="form-options">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="remember">
-                            <span>Remember me</span>
-                        </label>
-                        <a href="#" class="forgot-link">Forgot password?</a>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block admin-btn">
-                        Login to Dashboard <i class="fas fa-arrow-right"></i>
-                    </button>
-                </form>
-                <div class="auth-divider">
-                    <span>OR</span>
-                </div>
-                <div class="auth-switch">
-                    <p>Not an admin? <a href="#" id="backToUserLogin">User Login</a></p>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+  </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <div class="footer-logo">
-                        <i class="fas fa-bolt"></i>
-                        <span>Mastersolis Infotech</span>
-                    </div>
-                    <p>Transforming businesses with innovative technology solutions and AI-powered platforms.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-github"></i></a>
-                    </div>
-                </div>
+  <div id="authModal" class="auth-modal">
+    <div class="auth-overlay" id="authModalOverlay"></div>
+    <div class="auth-dialog">
+      <button id="authClose" class="auth-close"><i class="fas fa-times"></i></button>
 
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#services">Services</a></li>
-                        <li><a href="#projects">Portfolio</a></li>
-                    </ul>
-                </div>
+      <div id="loginForm">
+        <h3>Login</h3>
+        <form id="userLoginForm">
+          <input type="email" name="email" placeholder="Email" required/>
+          <input type="password" name="password" placeholder="Password" required/>
+          <button class="btn btn-primary btn-block" type="submit">Login</button>
+        </form>
+        <p class="auth-switch">No account? <a href="#" id="showSignup">Sign up</a> · <a href="#" id="showAdminLogin">Admin</a></p>
+      </div>
 
-                <div class="footer-section">
-                    <h4>Services</h4>
-                    <ul>
-                        <li><a href="#services">AI & Machine Learning</a></li>
-                        <li><a href="#services">Custom Development</a></li>
-                        <li><a href="#services">Cloud Solutions</a></li>
-                        <li><a href="#services">Cybersecurity</a></li>
-                    </ul>
-                </div>
+      <div id="signupForm" style="display:none;">
+        <h3>Create Account</h3>
+        <form id="userSignupForm">
+          <input type="text" name="name" placeholder="Full Name" required/>
+          <input type="email" name="email" placeholder="Email" required/>
+          <input type="password" name="password" placeholder="Password" required/>
+          <input type="password" name="confirmPassword" placeholder="Confirm Password" required/>
+          <button class="btn btn-primary btn-block" type="submit">Create Account</button>
+        </form>
+        <p class="auth-switch">Have an account? <a href="#" id="showLogin">Login</a></p>
+      </div>
 
-                <div class="footer-section">
-                    <h4>Contact Info</h4>
-                    <ul class="contact-list">
-                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
-                        <li><i class="fas fa-envelope"></i> info@mastersolis.com</li>
-                        <li><i class="fas fa-map-marker-alt"></i> Silicon Valley, CA</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2025 Mastersolis Infotech. All rights reserved.</p>
-                <div class="footer-links">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
-                    <a href="#">Cookie Policy</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Chatbot Widget -->
-    <div class="chatbot-widget" id="chatbotWidget">
-        <div class="chatbot-button" id="chatbotButton">
-            <i class="fas fa-comments"></i>
-        </div>
-        <div class="chatbot-window" id="chatbotWindow">
-            <div class="chatbot-header">
-                <h4><i class="fas fa-robot"></i> AI Assistant</h4>
-                <button class="chatbot-close" id="chatbotClose">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="chatbot-messages" id="chatbotMessages">
-                <div class="chatbot-message bot">
-                    <p>Hello! 👋 How can I assist you today?</p>
-                </div>
-            </div>
-            <div class="chatbot-input">
-                <input type="text" placeholder="Type your message..." id="chatbotInput">
-                <button id="chatbotSend"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
+      <div id="adminLoginForm" style="display:none;">
+        <h3>Admin Login</h3>
+        <form id="adminLoginFormSubmit">
+          <input type="email" name="email" placeholder="Admin Email" required/>
+          <input type="password" name="password" placeholder="Password" required/>
+          <button class="btn btn-primary btn-block" type="submit">Login</button>
+        </form>
+        <p class="auth-switch"><a href="#" id="backToUserLogin">Back to User Login</a></p>
+      </div>
     </div>
+  </div>
 
-    <!-- Scroll to Top Button -->
-    <button class="scroll-top" id="scrollTop">
-        <i class="fas fa-arrow-up"></i>
-    </button>
+  <div id="serviceModal" class="service-modal">
+    <div class="service-modal-overlay"></div>
+    <div class="service-modal-dialog">
+      <button class="service-modal-close"><i class="fas fa-times"></i></button>
+      <div class="service-modal-content"></div>
+    </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
+  <div id="projectModal" class="service-modal">
+    <div class="service-modal-overlay"></div>
+    <div class="service-modal-dialog">
+      <button class="service-modal-close"><i class="fas fa-times"></i></button>
+      <div class="service-modal-content"></div>
+    </div>
+  </div>
+
+  <button id="chatbotButton" class="chatbot-button"><i class="fas fa-comments"></i></button>
+  <div id="chatbotWindow" class="chatbot-window">
+    <div class="chatbot-header">
+      <h4>Assistant</h4>
+      <button id="chatbotClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="chatbotMessages" class="chatbot-messages"></div>
+    <div class="chatbot-input">
+      <input id="chatbotInput" placeholder="Type a message..."/>
+      <button id="chatbotSend" class="btn btn-primary">Send</button>
+    </div>
+  </div>
+
+  <button id="scrollTop" class="scroll-top"><i class="fas fa-arrow-up"></i></button>
+  <footer class="footer">
+    <div class="container">
+      <p>© 2025 Mastersolis Infotech. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <div id="resumeModal" class="resume-modal">
+    <div class="resume-modal__overlay"></div>
+    <div class="resume-modal__dialog">
+      <button id="closeResumeModal" class="resume-modal__close"><i class="fas fa-times"></i></button>
+      
+      <div id="resumeFormStep" class="resume-step active">
+        <h3 class="resume-modal__title">Build Your Resume</h3>
+        <form id="resumeForm" class="resume-form">
+          <div class="form-row">
+            <input type="text" name="fullName" placeholder="Full Name" required/>
+            <input type="text" name="title" placeholder="Professional Title" required/>
+          </div>
+          <div class="form-row">
+            <input type="email" name="email" placeholder="Email" required/>
+            <input type="text" name="phone" placeholder="Phone" required/>
+          </div>
+          <input type="text" name="location" placeholder="Location" />
+
+          <label>Summary</label>
+          <textarea name="summary" rows="3" placeholder="Professional summary" required></textarea>
+
+          <label>Skills</label>
+          <textarea name="skills" rows="2" placeholder="React, Node.js, AWS" required></textarea>
+
+          <label>Experience</label>
+          <textarea name="experience" rows="4" placeholder="Role – Company – Achievements"></textarea>
+
+          <label>Education</label>
+          <textarea name="education" rows="3" placeholder="Degree – Institution – Year"></textarea>
+
+          <button type="submit" class="btn btn-primary btn-block">Continue to Template</button>
+        </form>
+      </div>
+
+      <div id="resumeTemplateStep" class="resume-step">
+        <h3 class="resume-modal__title">Choose Template</h3>
+        <div class="template-grid">
+          <div class="template-card" data-template="professional">
+            <div class="template-preview">
+              <i class="fas fa-file-alt"></i>
+              <h4>Professional</h4>
+            </div>
+          </div>
+          <div class="template-card" data-template="modern">
+            <div class="template-preview">
+              <i class="fas fa-file-invoice"></i>
+              <h4>Modern</h4>
+            </div>
+          </div>
+          <div class="template-card" data-template="creative">
+            <div class="template-preview">
+              <i class="fas fa-file-signature"></i>
+              <h4>Creative</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://esm.sh/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+
 </body>
 </html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Login – Mastersolis Infotech</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <h1>Admin Login</h1>
+
+      <form id="adminLoginForm" class="auth-form">
+        <label>Email</label>
+        <input type="email" name="email" title="email" value="admin@mastersolis.com" required />
+
+        <label>Password</label>
+        <input type="password" name="password" title="password" value="admin123" minlength="6" required />
+
+        <button type="submit" class="btn primary">Login</button>
+        <p id="loginMsg" class="msg"></p>
+      </form>
+
+      <div class="auth-links">
+        <a href="admin-signup.html">Need an admin account? Signup</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
