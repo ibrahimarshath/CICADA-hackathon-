@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 // Supabase configuration
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://jqxaufurcholgqwskybi.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxeGF1ZnVyY2hvbGdxd3NreWJpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUxNDI4NSwiZXhwIjoyMDc4MDkwMjg1fQ.j7liEK4JaMu74tQOBOu9ExkRbz87kz9NpZWsPppTP-o';
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'UZZ3i1gCnesw79z7WLXt8FwD9/hmcYZ4B6NtMEJ3+ou1hK5URv5LwyZvvFV8RfeJtSJJnrved8LdVq8NVoCeCg==';
 
 // Initialize Supabase client with service key
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);

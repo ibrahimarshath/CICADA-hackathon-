@@ -824,7 +824,11 @@
     </div>
   </div>
 
-<script src="https://esm.sh/@supabase/supabase-js@2"></script>
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+      window.supabase = { createClient };
+    </script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="script.js"></script>
 
 </body>
