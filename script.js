@@ -429,23 +429,26 @@ if (contactForm) {
         const formData = new FormData(contactForm);
         const data = Object.fromEntries(formData);
 
-        const { error } = await supabase
+        const { data: inserted, error, status } = await supabase
             .from("contact_messages")
-            .insert({
+            .insert([{
                 name: data.name,
                 email: data.email,
                 phone: data.phone,
                 subject: data.subject,
                 message: data.message
-            });
+            }])
+            .select();
+
+        console.log("Insert response status:", status, "error:", error, "data:", inserted);
 
         if (error) {
-            console.error("Insert Error:", error);
-            alert("❌ Something went wrong. Check console.");
+            toast.error(`Insert failed (${status ?? "n/a"}): ${error.message ?? "See console"}`);
+            console.error("Insert Error details:", error);
             return;
         }
 
-        alert("✅ Your message was submitted successfully!");
+        toast.success("Your message was submitted successfully!");
         contactForm.reset();
     });
 }
@@ -517,7 +520,7 @@ if (userLoginForm) {
         const data = Object.fromEntries(formData);
         
         console.log('User login:', data);
-        alert('Login functionality will be implemented in the backend integration phase.');
+        toast.info('Login functionality will be implemented in the backend integration phase.');
         closeAuthModal();
     });
 }
@@ -530,12 +533,12 @@ if (userSignupForm) {
         const data = Object.fromEntries(formData);
         
         if (data.password !== data.confirmPassword) {
-            alert('Passwords do not match!');
+            toast.error('Passwords do not match!');
             return;
         }
         
         console.log('User signup:', data);
-        alert('Account created successfully! You can now login.');
+        toast.success('Account created successfully! You can now login.');
         
         loginFormContainer.style.display = 'block';
         signupFormContainer.style.display = 'none';
@@ -560,7 +563,7 @@ if (adminLoginFormSubmit) {
                     throw new Error('Server health check failed');
                 }
             } catch (healthError) {
-                alert("❌ Cannot connect to server. Please make sure:\n1. The backend server is running (npm start)\n2. Server is running on http://localhost:3000\n3. No firewall is blocking the connection");
+                toast.error("Cannot connect to server. Please make sure:<br>1. The backend server is running (npm start)<br>2. Server is running on http://localhost:3000<br>3. No firewall is blocking the connection");
                 console.error('Server health check failed:', healthError);
                 return;
             }
@@ -589,18 +592,23 @@ if (adminLoginFormSubmit) {
                 localStorage.setItem('adminToken', result.token);
                 localStorage.setItem('adminUser', JSON.stringify(result.user));
                 
+                // Show success message
+                toast.success('Login successful! Redirecting to admin dashboard...');
+                
                 // Close modal & redirect to admin dashboard
-                closeAuthModal();
-                window.location.href = "admin.html";
+                setTimeout(() => {
+                    closeAuthModal();
+                    window.location.href = "admin.html";
+                }, 1000);
             } else {
-                alert("❌ " + (result.error || 'Login failed'));
+                toast.error(result.error || 'Login failed');
             }
         } catch (error) {
             console.error('Login error:', error);
             if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                alert("❌ Cannot connect to server. Please make sure:\n1. The backend server is running (npm start)\n2. Server is running on http://localhost:3000\n3. No firewall is blocking the connection");
+                toast.error("Cannot connect to server. Please make sure:<br>1. The backend server is running (npm start)<br>2. Server is running on http://localhost:3000<br>3. No firewall is blocking the connection");
             } else {
-                alert("❌ Login failed: " + error.message);
+                toast.error("Login failed: " + error.message);
             }
         }
     });
@@ -670,7 +678,7 @@ function generateResume(template) {
     console.log('Generating resume with template:', template);
     console.log('Resume data:', resumeFormData);
     
-    alert(`Resume generated successfully with ${template} template! \n\nIn production, this would generate a downloadable PDF resume with your information.`);
+    toast.success(`Resume generated successfully with ${template} template!<br><br>In production, this would generate a downloadable PDF resume with your information.`);
     closeResumeModal();
 }
 
@@ -682,7 +690,7 @@ const applyButtons = document.querySelectorAll('.apply-btn');
 
 applyButtons.forEach(button => {
     button.addEventListener('click', () => {
-        alert('Job application form will be implemented in the next phase. This will open a modal with an application form and resume upload functionality.');
+        toast.info('Job application form will be implemented in the next phase. This will open a modal with an application form and resume upload functionality.');
     });
 });
 

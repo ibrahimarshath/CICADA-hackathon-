@@ -420,10 +420,14 @@ async function deleteMessage(id) {
 
 // Notification helper
 function showNotification(message, type = 'info') {
-  // Simple alert for now, can be enhanced with a toast library
+  // Use toast notification system
   if (type === 'success') {
-    alert(message);
+    toast.success(message);
+  } else if (type === 'error') {
+    toast.error(message);
+  } else if (type === 'warning') {
+    toast.warning(message);
   } else {
-    alert(message);
+    toast.info(message);
   }
 }
