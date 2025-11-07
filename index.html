@@ -29,7 +29,7 @@
                     <li><a href="#blog" class="nav-link">Blog</a></li>
                     <li><a href="#careers" class="nav-link">Careers</a></li>
                     <li><a href="#contact" class="nav-link">Contact</a></li>
-                    <li><a href="#admin" class="nav-link admin-link"><i class="fas fa-user-shield"></i> Admin</a></li>
+                    <li><button class="login-btn" id="loginBtn"><i class="fas fa-user"></i> Login / Sign Up</button></li>
                 </ul>
             </div>
         </div>
@@ -802,46 +802,161 @@
         </div>
     </section>
 
-    <!-- Admin Login Section -->
-    <section id="admin" class="admin-section section-padding">
-        <div class="container">
-            <div class="admin-login-wrapper">
-                <div class="admin-login-card">
-                    <div class="admin-header">
-                        <i class="fas fa-user-shield"></i>
-                        <h2>Admin Login</h2>
-                        <p>Access the dashboard to manage site content</p>
+    <!-- Login/Signup Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-modal-overlay" id="authModalOverlay"></div>
+        <div class="auth-modal-content">
+            <button class="auth-close" id="authClose">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <!-- Login Form -->
+            <div class="auth-form-container" id="loginForm">
+                <div class="auth-header">
+                    <i class="fas fa-user-circle"></i>
+                    <h2>Welcome Back</h2>
+                    <p>Login to your account</p>
+                </div>
+                <form class="auth-form" id="userLoginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">
+                            <i class="fas fa-envelope"></i>
+                            Email Address
+                        </label>
+                        <input type="email" id="loginEmail" name="email" placeholder="Enter your email" required>
                     </div>
-                    <form class="admin-form" id="adminLoginForm">
+                    <div class="form-group">
+                        <label for="loginPassword">
+                            <i class="fas fa-lock"></i>
+                            Password
+                        </label>
+                        <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Login <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+                <div class="auth-divider">
+                    <span>OR</span>
+                </div>
+                <div class="auth-switch">
+                    <p>Don't have an account? <a href="#" id="showSignup">Sign Up</a></p>
+                    <p class="admin-link-text">Are you an admin? <a href="#" id="showAdminLogin">Admin Login</a></p>
+                </div>
+            </div>
+
+            <!-- Signup Form -->
+            <div class="auth-form-container" id="signupForm" style="display: none;">
+                <div class="auth-header">
+                    <i class="fas fa-user-plus"></i>
+                    <h2>Create Account</h2>
+                    <p>Sign up to get started</p>
+                </div>
+                <form class="auth-form" id="userSignupForm">
+                    <div class="form-row">
                         <div class="form-group">
-                            <label for="adminEmail">
-                                <i class="fas fa-envelope"></i>
-                                Email Address
+                            <label for="signupFirstName">
+                                <i class="fas fa-user"></i>
+                                First Name
                             </label>
-                            <input type="email" id="adminEmail" name="adminEmail" required>
+                            <input type="text" id="signupFirstName" name="firstName" placeholder="First name" required>
                         </div>
                         <div class="form-group">
-                            <label for="adminPassword">
-                                <i class="fas fa-lock"></i>
-                                Password
+                            <label for="signupLastName">
+                                <i class="fas fa-user"></i>
+                                Last Name
                             </label>
-                            <input type="password" id="adminPassword" name="adminPassword" required>
+                            <input type="text" id="signupLastName" name="lastName" placeholder="Last name" required>
                         </div>
-                        <div class="form-options">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="remember">
-                                <span>Remember me</span>
-                            </label>
-                            <a href="#" class="forgot-link">Forgot password?</a>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block">
-                            Login to Dashboard <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </form>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">
+                            <i class="fas fa-envelope"></i>
+                            Email Address
+                        </label>
+                        <input type="email" id="signupEmail" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">
+                            <i class="fas fa-lock"></i>
+                            Password
+                        </label>
+                        <input type="password" id="signupPassword" name="password" placeholder="Create a password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupConfirmPassword">
+                            <i class="fas fa-lock"></i>
+                            Confirm Password
+                        </label>
+                        <input type="password" id="signupConfirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="terms" required>
+                            <span>I agree to the Terms & Conditions</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Create Account <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+                <div class="auth-divider">
+                    <span>OR</span>
+                </div>
+                <div class="auth-switch">
+                    <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
+                </div>
+            </div>
+
+            <!-- Admin Login Form -->
+            <div class="auth-form-container" id="adminLoginForm" style="display: none;">
+                <div class="auth-header admin-header">
+                    <i class="fas fa-user-shield"></i>
+                    <h2>Admin Access</h2>
+                    <p>Secure admin login portal</p>
+                </div>
+                <form class="auth-form" id="adminLoginFormSubmit">
+                    <div class="form-group">
+                        <label for="adminEmail">
+                            <i class="fas fa-envelope"></i>
+                            Admin Email
+                        </label>
+                        <input type="email" id="adminEmail" name="adminEmail" placeholder="Enter admin email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">
+                            <i class="fas fa-lock"></i>
+                            Admin Password
+                        </label>
+                        <input type="password" id="adminPassword" name="adminPassword" placeholder="Enter admin password" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block admin-btn">
+                        Login to Dashboard <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+                <div class="auth-divider">
+                    <span>OR</span>
+                </div>
+                <div class="auth-switch">
+                    <p>Not an admin? <a href="#" id="backToUserLogin">User Login</a></p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">

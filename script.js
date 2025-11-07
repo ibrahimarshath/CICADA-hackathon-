@@ -139,30 +139,155 @@ if (contactForm) {
 }
 
 // ========================================
-// ADMIN LOGIN FORM
+// LOGIN/SIGNUP MODAL
 // ========================================
 
-const adminLoginForm = document.getElementById('adminLoginForm');
+const loginBtn = document.getElementById('loginBtn');
+const authModal = document.getElementById('authModal');
+const authModalOverlay = document.getElementById('authModalOverlay');
+const authClose = document.getElementById('authClose');
 
-if (adminLoginForm) {
-    adminLoginForm.addEventListener('submit', (e) => {
+const loginFormContainer = document.getElementById('loginForm');
+const signupFormContainer = document.getElementById('signupForm');
+const adminLoginFormContainer = document.getElementById('adminLoginForm');
+
+const showSignupBtn = document.getElementById('showSignup');
+const showLoginBtn = document.getElementById('showLogin');
+const showAdminLoginBtn = document.getElementById('showAdminLogin');
+const backToUserLoginBtn = document.getElementById('backToUserLogin');
+
+// Open modal
+loginBtn.addEventListener('click', () => {
+    authModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+});
+
+// Close modal
+function closeAuthModal() {
+    authModal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+authClose.addEventListener('click', closeAuthModal);
+authModalOverlay.addEventListener('click', closeAuthModal);
+
+// Switch between forms
+showSignupBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    loginFormContainer.style.display = 'none';
+    signupFormContainer.style.display = 'block';
+    adminLoginFormContainer.style.display = 'none';
+});
+
+showLoginBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    loginFormContainer.style.display = 'block';
+    signupFormContainer.style.display = 'none';
+    adminLoginFormContainer.style.display = 'none';
+});
+
+showAdminLoginBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    loginFormContainer.style.display = 'none';
+    signupFormContainer.style.display = 'none';
+    adminLoginFormContainer.style.display = 'block';
+});
+
+backToUserLoginBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    loginFormContainer.style.display = 'block';
+    signupFormContainer.style.display = 'none';
+    adminLoginFormContainer.style.display = 'none';
+});
+
+// User Login Form
+const userLoginForm = document.getElementById('userLoginForm');
+if (userLoginForm) {
+    userLoginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        
-        const formData = new FormData(adminLoginForm);
+        const formData = new FormData(userLoginForm);
         const data = Object.fromEntries(formData);
         
-        console.log('Admin login attempted:', data);
+        console.log('User login:', data);
+        alert('Login functionality will be implemented in the backend integration phase.');
+        closeAuthModal();
         
-        // Placeholder for actual authentication
-        alert('Admin login functionality will be implemented in the backend integration phase.');
+        // Backend integration placeholder
+        // fetch('/api/user/login', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify(data)
+        // });
+    });
+}
+
+// User Signup Form
+const userSignupForm = document.getElementById('userSignupForm');
+if (userSignupForm) {
+    userSignupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(userSignupForm);
+        const data = Object.fromEntries(formData);
         
-        // Here you would typically authenticate the admin
+        // Validate passwords match
+        if (data.password !== data.confirmPassword) {
+            alert('Passwords do not match!');
+            return;
+        }
+        
+        console.log('User signup:', data);
+        alert('Account created successfully! You can now login.');
+        
+        // Switch to login form
+        loginFormContainer.style.display = 'block';
+        signupFormContainer.style.display = 'none';
+        userSignupForm.reset();
+        
+        // Backend integration placeholder
+        // fetch('/api/user/signup', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify(data)
+        // });
+    });
+}
+
+// Admin Login Form
+const adminLoginFormSubmit = document.getElementById('adminLoginFormSubmit');
+if (adminLoginFormSubmit) {
+    adminLoginFormSubmit.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(adminLoginFormSubmit);
+        const data = Object.fromEntries(formData);
+        
+        console.log('Admin login:', data);
+        alert('Admin authentication will be implemented in the backend integration phase.');
+        closeAuthModal();
+        
+        // Backend integration placeholder
         // fetch('/api/admin/login', {
         //     method: 'POST',
         //     headers: { 'Content-Type': 'application/json' },
         //     body: JSON.stringify(data)
         // });
     });
+}
+
+// Close modal on escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && authModal.classList.contains('active')) {
+        closeAuthModal();
+    }
+});
+
+// ========================================
+// ADMIN LOGIN FORM (Old - Remove if exists)
+// ========================================
+
+// Remove old admin login form code
+const oldAdminLoginForm = document.getElementById('adminLoginForm');
+if (oldAdminLoginForm && oldAdminLoginForm !== adminLoginFormSubmit) {
+    // This is just a safety check for old code
 }
 
 // ========================================
