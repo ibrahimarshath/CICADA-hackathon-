@@ -1,3 +1,10 @@
+const SUPABASE_URL = "https://jqxaufurcholgqwskybi.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxeGF1ZnVyY2hvbGdxd3NreWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MTQyODUsImV4cCI6MjA3ODA5MDI4NX0.FYMlEiIecY00FKoE9jq3L8hI8fzNqQ3w7DLBiiWAy_g";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+console.log("✅ Supabase initialized:", supabase);
+
 // ========================================
 // NAVIGATION
 // ========================================
@@ -113,28 +120,37 @@ filterButtons.forEach(button => {
 // CONTACT FORM
 // ========================================
 
-const contactForm = document.getElementById('contactForm');
+/* ========================================
+   CONTACT FORM
+======================================== */
+
+const contactForm = document.getElementById("contactForm");
 
 if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        
-        // Get form data
+
         const formData = new FormData(contactForm);
         const data = Object.fromEntries(formData);
-        
-        console.log('Form submitted:', data);
-        
-        // Show success message (you'll replace this with actual form submission)
-        alert('Thank you for your message! We will get back to you soon.');
+
+        const { error } = await supabase
+            .from("contact_messages")
+            .insert({
+                name: data.name,
+                email: data.email,
+                phone: data.phone,
+                subject: data.subject,
+                message: data.message
+            });
+
+        if (error) {
+            console.error("Insert Error:", error);
+            alert("❌ Something went wrong. Check console.");
+            return;
+        }
+
+        alert("✅ Your message was submitted successfully!");
         contactForm.reset();
-        
-        // Here you would typically send the data to your backend
-        // fetch('/api/contact', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(data)
-        // });
     });
 }
 
