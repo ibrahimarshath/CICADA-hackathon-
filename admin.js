@@ -6,29 +6,78 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Check authentication on page load
 window.addEventListener('DOMContentLoaded', async () => {
-  // Check Supabase auth session
-  const { data: { session }, error } = await supabase.auth.getSession();
-  
-  if (!session || !session.user) {
-    window.location.href = 'index.html';
+  try {
+    // Check Supabase auth session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error('Session error:', sessionError);
+      window.location.href = 'index.html';
     return;
   }
 
-  // Check if user has admin role
-  const userRole = session.user.user_metadata?.role;
-  if (userRole !== 'admin') {
-    await supabase.auth.signOut();
-    window.location.href = 'index.html';
+    if (!session || !session.user) {
+      // Try to get user directly
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        window.location.href = 'index.html';
     return;
   }
 
-  // Load initial data
-  loadStats();
-  loadHomepage();
-  loadAbout();
-  loadServices();
-  loadJobs();
-  loadJobSelector();
+      // If we have a user but no session, try to refresh
+      const { data: { session: newSession }, error: refreshError } = await supabase.auth.refreshSession();
+      
+      if (refreshError || !newSession) {
+        window.location.href = 'index.html';
+    return;
+      }
+    }
+
+    const currentUser = session?.user || (await supabase.auth.getUser()).data?.user;
+    
+    if (!currentUser) {
+      window.location.href = 'index.html';
+    return;
+  }
+
+    // Check if user has admin role or is the hardcoded admin email
+    const ADMIN_EMAIL = 'admin@mastersolis-backend';
+    const userRole = currentUser.user_metadata?.role;
+    const isAdminEmail = currentUser.email === ADMIN_EMAIL;
+    
+    if (userRole !== 'admin' && !isAdminEmail) {
+      await supabase.auth.signOut();
+      toast.error('Access denied. Admin privileges required.');
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 2000);
+      return;
+    }
+
+    // If admin email but role not set, update it
+    if (isAdminEmail && userRole !== 'admin') {
+      try {
+        await supabase.auth.updateUser({
+          data: { role: 'admin' }
+        });
+      } catch (updateError) {
+        console.warn('Could not update user role:', updateError);
+        // Still allow access if it's the admin email
+      }
+    }
+
+    // Load initial data
+    loadStats();
+    loadHomepage();
+    loadAbout();
+    loadServices();
+    loadJobs();
+    loadJobSelector();
+  } catch (error) {
+    console.error('Auth check error:', error);
+    window.location.href = 'index.html';
+  }
 });
 
 // Show section
@@ -151,7 +200,7 @@ document.getElementById('homepageForm')?.addEventListener('submit', async (e) =>
 
 async function loadAbout() {
   try {
-    const { data, error } = await supabase
+  const { data, error } = await supabase
       .from('about')
       .select('*')
       .single();
@@ -333,7 +382,7 @@ async function loadJobs() {
           <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
           <p>Failed to load jobs</p>
         </td>
-      </tr>
+    </tr>
     `;
   }
 }

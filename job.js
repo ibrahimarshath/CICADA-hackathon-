@@ -182,7 +182,21 @@ document.getElementById('userLoginForm')?.addEventListener('submit', async (e) =
       password: data.password
     });
 
-    if (error) throw error;
+    if (error) {
+      if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
+        toast.error('Please verify your email before logging in. Check your inbox for a confirmation link.');
+        return;
+      } else if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
+        toast.error('Invalid email or password. Please try again.');
+        return;
+      } else {
+        throw error;
+      }
+    }
+
+    if (!authData?.session && !authData?.user) {
+      throw new Error('Login failed: No session created');
+    }
 
     toast.success('Login successful!');
     closeAuthModal();
@@ -217,13 +231,27 @@ document.getElementById('userSignupForm')?.addEventListener('submit', async (e) 
         data: {
           name: data.name,
           full_name: data.name
-        }
+        },
+        emailRedirectTo: window.location.origin
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+        toast.error('An account with this email already exists. Please log in instead.');
+        showLogin();
+        return;
+      } else {
+        throw error;
+      }
+    }
 
-    toast.success('Account created successfully! Please check your email to verify your account.');
+    if (authData.user && !authData.session) {
+      toast.success('Account created successfully! Please check your email to verify your account before logging in.');
+    } else {
+      toast.success('Account created successfully! You can now log in.');
+    }
+    
     showLogin();
     e.target.reset();
   } catch (error) {

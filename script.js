@@ -540,7 +540,23 @@ if (userLoginForm) {
                 password: data.password
             });
 
-            if (error) throw error;
+            if (error) {
+                // Handle specific error cases
+                if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
+                    toast.error('Please verify your email before logging in. Check your inbox for a confirmation link.');
+                    return;
+                } else if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
+                    toast.error('Invalid email or password. Please try again.');
+                    return;
+                } else {
+                    throw error;
+                }
+            }
+
+            // Check if we got a valid session
+            if (!authData?.session && !authData?.user) {
+                throw new Error('Login failed: No session created');
+            }
 
             toast.success('Login successful!');
             closeAuthModal();
@@ -548,6 +564,9 @@ if (userLoginForm) {
             // Update UI immediately
             if (typeof updateAuthUI === 'function') {
                 await updateAuthUI();
+            } else {
+                // Fallback: reload page if updateAuthUI not available
+                setTimeout(() => window.location.reload(), 500);
             }
         } catch (error) {
             console.error('Login error:', error);
@@ -581,13 +600,31 @@ if (userSignupForm) {
                     data: {
                         name: data.name,
                         full_name: data.name
-                    }
+                    },
+                    emailRedirectTo: window.location.origin
                 }
             });
 
-            if (error) throw error;
+            if (error) {
+                if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+                    toast.error('An account with this email already exists. Please log in instead.');
+                    loginFormContainer.style.display = 'block';
+                    signupFormContainer.style.display = 'none';
+                    return;
+                } else if (error.message.includes('Password')) {
+                    toast.error('Password does not meet requirements. Please use a stronger password.');
+                    return;
+                } else {
+                    throw error;
+                }
+            }
 
-            toast.success('Account created successfully! Please check your email to verify your account.');
+            // Check if email confirmation is required
+            if (authData.user && !authData.session) {
+                toast.success('Account created successfully! Please check your email to verify your account before logging in.');
+            } else {
+                toast.success('Account created successfully! You can now log in.');
+            }
             
             loginFormContainer.style.display = 'block';
             signupFormContainer.style.display = 'none';
@@ -609,24 +646,96 @@ if (adminLoginFormSubmit) {
         const data = Object.fromEntries(formData);
 
         try {
-            // Use Supabase Auth for admin login
-            const { data: authData, error } = await supabase.auth.signInWithPassword({
-                email: data.email,
-                password: data.password
+            // Hardcoded admin credentials
+            const ADMIN_EMAIL = 'admin@mastersolis-backend';
+            const ADMIN_PASSWORD = 'admin123';
+
+            // Check if credentials match admin credentials
+            if (data.email !== ADMIN_EMAIL || data.password !== ADMIN_PASSWORD) {
+                throw new Error('Invalid admin credentials. Please check your email and password.');
+            }
+
+            // Try to sign in with Supabase Auth
+            let { data: authData, error } = await supabase.auth.signInWithPassword({
+                email: ADMIN_EMAIL,
+                password: ADMIN_PASSWORD
             });
 
-            if (error) throw error;
+            // If user doesn't exist, try to create admin user
+            if (error && (error.message.includes('Invalid login credentials') || error.message.includes('User not found'))) {
+                console.log('Admin user not found, attempting to create...');
+                
+                // Try to create admin user
+                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                    email: ADMIN_EMAIL,
+                    password: ADMIN_PASSWORD,
+                    options: {
+                        data: {
+                            role: 'admin',
+                            name: 'Admin',
+                            full_name: 'Admin User'
+                        }
+                    }
+                });
+
+                if (signUpError) {
+                    // If creation fails, it might be because user already exists or other issue
+                    // Try signing in again
+                    const retry = await supabase.auth.signInWithPassword({
+                        email: ADMIN_EMAIL,
+                        password: ADMIN_PASSWORD
+                    });
+                    
+                    if (retry.error) {
+                        throw new Error('Unable to create or sign in admin account. Please contact support.');
+                    }
+                    
+                    authData = retry.data;
+                    error = retry.error;
+                } else {
+                    // User created, but might need email confirmation
+                    if (signUpData.user && !signUpData.session) {
+                        throw new Error('Admin account created. Please check your email to verify the account, then try logging in again.');
+                    }
+                    authData = signUpData;
+                }
+            }
+
+            if (error && !authData) {
+                // Handle specific error cases
+                if (error.message.includes('Email not confirmed')) {
+                    throw new Error('Please verify your email before logging in. Check your inbox for a confirmation link.');
+                } else if (error.message.includes('Invalid login credentials')) {
+                    throw new Error('Invalid email or password. Please try again.');
+                } else {
+                    throw error;
+                }
+            }
 
             // Check if user has admin role in metadata
-            const userRole = authData.user?.user_metadata?.role;
+            const user = authData?.user || authData?.session?.user;
+            if (!user) {
+                throw new Error('Failed to retrieve user information');
+            }
+
+            // Ensure user has admin role (update if needed)
+            const userRole = user.user_metadata?.role;
             if (userRole !== 'admin') {
-                await supabase.auth.signOut();
-                throw new Error('Access denied. Admin privileges required.');
+                // Try to update user metadata to set admin role
+                const { error: updateError } = await supabase.auth.updateUser({
+                    data: { role: 'admin' }
+                });
+                
+                if (updateError) {
+                    console.warn('Could not update user role:', updateError);
+                }
             }
 
             // Store session info
-            localStorage.setItem('adminSession', JSON.stringify(authData));
-            localStorage.setItem('adminUser', JSON.stringify(authData.user));
+            if (authData.session) {
+                localStorage.setItem('adminSession', JSON.stringify(authData.session));
+            }
+            localStorage.setItem('adminUser', JSON.stringify(user));
             
             // Show success message
             toast.success('Admin login successful! Redirecting to admin dashboard...');
