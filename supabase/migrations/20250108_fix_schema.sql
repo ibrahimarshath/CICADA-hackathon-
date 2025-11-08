@@ -30,6 +30,7 @@ ALTER TABLE jobs ADD COLUMN IF NOT EXISTS tags TEXT[];
 -- Note: cover_letter already exists in current schema, but adding IF NOT EXISTS for safety
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS ai_fit_score INT;
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS cover_letter TEXT;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS resume_path TEXT;
 
 -- Create indexes for new columns if needed
 CREATE INDEX IF NOT EXISTS idx_resumes_user_id ON resumes(user_id);

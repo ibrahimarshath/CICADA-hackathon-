@@ -246,6 +246,20 @@ document.getElementById('userSignupForm')?.addEventListener('submit', async (e) 
       }
     }
 
+    // Create profile entry after signup
+    if (authData.user) {
+      try {
+        await supabase.from('profiles').insert({
+          id: authData.user.id,
+          full_name: data.name,
+          is_admin: false
+        });
+      } catch (profileError) {
+        console.warn('Could not create profile:', profileError);
+        // Profile might already exist or table doesn't exist yet
+      }
+    }
+
     if (authData.user && !authData.session) {
       toast.success('Account created successfully! Please check your email to verify your account before logging in.');
     } else {
@@ -303,13 +317,11 @@ document.getElementById('applicationForm').addEventListener('submit', async (e) 
     const jobId = formData.get('jobId');
 
     // Step 1: Upload resume to Supabase Storage
-    const fileExt = resumeFile.name.split('.').pop();
-    const fileName = `${userId}/${jobId}/${Date.now()}.${fileExt}`;
-    const filePath = fileName;
+    const path = `user/${userId}/${jobId}/${Date.now()}-${resumeFile.name}`;
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('resumes')
-      .upload(filePath, resumeFile, {
+      .upload(path, resumeFile, {
         cacheControl: '3600',
         upsert: false
       });
@@ -322,21 +334,16 @@ document.getElementById('applicationForm').addEventListener('submit', async (e) 
       throw new Error('Failed to upload resume: ' + uploadError.message);
     }
 
-    // Get public URL for the resume
-    const { data: { publicUrl } } = supabase.storage
-      .from('resumes')
-      .getPublicUrl(filePath);
-
     // Step 2: Insert application into database
     const applicationData = {
       job_id: jobId,
-      user_id: currentUser.id, // Use authenticated user ID
-      candidate_id: currentUser.id, // Also set candidate_id for compatibility
+      user_id: currentUser.id,
+      candidate_id: currentUser.id,
       name: formData.get('name'),
       email: formData.get('email'),
       phone: formData.get('phone') || null,
       cover_letter: formData.get('cover_letter') || null,
-      resume_url: publicUrl,
+      resume_path: path, // Store the path for signed URL generation
       status: 'pending'
     };
 

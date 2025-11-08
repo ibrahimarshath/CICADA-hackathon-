@@ -127,6 +127,9 @@
             <button onclick="showSection('applications')" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray hover:text-primary-dark hover:border-primary transition-colors">
               <i class="fas fa-file-alt mr-2"></i>Applications
             </button>
+            <button onclick="showSection('analytics')" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray hover:text-primary-dark hover:border-primary transition-colors">
+              <i class="fas fa-chart-line mr-2"></i>Analytics
+            </button>
             <button onclick="showSection('messages')" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray hover:text-primary-dark hover:border-primary transition-colors">
               <i class="fas fa-envelope mr-2"></i>Contact Messages
             </button>
@@ -363,23 +366,114 @@
       <!-- Applications Section -->
       <div id="applications-section" class="admin-section hidden">
         <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50">
-          <h2 class="text-2xl font-bold text-dark mb-6">Job Applications</h2>
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-dark">Job Applications</h2>
+            <div class="flex gap-4">
+              <button onclick="loadApplications()" class="bg-gray-light hover:bg-gray text-dark px-4 py-2 rounded-lg font-medium transition-all text-sm">
+                <i class="fas fa-sync mr-2"></i>Refresh
+              </button>
+            </div>
+          </div>
           
-          <!-- Job Selector -->
+          <!-- Job Selector (Optional Filter) -->
           <div class="mb-6 p-4 bg-light rounded-lg">
-            <label class="block text-sm font-medium text-dark mb-2">Select Job to View Applications</label>
+            <label class="block text-sm font-medium text-dark mb-2">Filter by Job (Optional)</label>
             <select id="jobSelector" class="w-full md:w-1/3 px-4 py-3 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
-              <option value="">Loading jobs...</option>
-              </select>
+              <option value="">All Applications</option>
+            </select>
           </div>
 
           <!-- Applications List -->
           <div id="applicationsList" class="text-center py-8 text-gray">
-            <i class="fas fa-info-circle text-2xl mb-2"></i>
-            <p>Select a job to view applications</p>
+            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+            <p>Loading applications...</p>
           </div>
         </div>
+      </div>
+
+      <!-- Analytics Section -->
+      <div id="analytics-section" class="admin-section hidden">
+        <div class="space-y-6">
+          <!-- Stats Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50 hover:shadow-colored transition-all">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-gray text-sm font-medium uppercase tracking-wide">Total Visitors</p>
+                  <p class="text-3xl font-bold text-gradient-primary mt-2" id="visitorsCount">-</p>
+                </div>
+                <div class="gradient-primary p-4 rounded-full shadow-colored">
+                  <i class="fas fa-users text-white text-2xl"></i>
+                </div>
+              </div>
             </div>
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50 hover:shadow-colored transition-all">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-gray text-sm font-medium uppercase tracking-wide">Total Applicants</p>
+                  <p class="text-3xl font-bold text-gradient-primary mt-2" id="applicantsCount">-</p>
+                </div>
+                <div class="gradient-secondary p-4 rounded-full shadow-colored">
+                  <i class="fas fa-user-check text-white text-2xl"></i>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50 hover:shadow-colored transition-all">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-gray text-sm font-medium uppercase tracking-wide">Service Clicks</p>
+                  <p class="text-3xl font-bold text-gradient-primary mt-2" id="serviceClicksCount">-</p>
+                </div>
+                <div class="gradient-tertiary p-4 rounded-full shadow-colored">
+                  <i class="fas fa-mouse-pointer text-white text-2xl"></i>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50 hover:shadow-colored transition-all">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-gray text-sm font-medium uppercase tracking-wide">Top Service</p>
+                  <p class="text-lg font-bold text-gradient-primary mt-2" id="topService">-</p>
+                </div>
+                <div class="gradient-primary p-4 rounded-full shadow-colored">
+                  <i class="fas fa-star text-white text-2xl"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Visitors Per Day Chart -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50">
+              <h3 class="text-xl font-bold text-dark mb-4">Visitors Per Day</h3>
+              <canvas id="visitorsChart" style="max-height: 300px;"></canvas>
+            </div>
+            
+            <!-- Applications Per Job Chart -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50">
+              <h3 class="text-xl font-bold text-dark mb-4">Applications Per Job</h3>
+              <canvas id="applicationsChart" style="max-height: 300px;"></canvas>
+            </div>
+          </div>
+
+          <!-- AI Summary Section -->
+          <div class="bg-white rounded-xl shadow-md p-6 border border-gray-light/50">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-dark">AI Summary</h3>
+              <button onclick="fetchAnalytics()" class="bg-gray-light hover:bg-gray text-dark px-4 py-2 rounded-lg font-medium transition-all text-sm">
+                <i class="fas fa-sync mr-2"></i>Refresh
+              </button>
+            </div>
+            <div id="summaryText" class="text-gray leading-relaxed">
+              <div class="text-center py-4">
+                <i class="fas fa-spinner fa-spin text-2xl mb-2 text-primary"></i>
+                <p>Loading analytics summary...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Messages Section -->
       <div id="messages-section" class="admin-section hidden">
@@ -396,6 +490,7 @@
 
   <link rel="stylesheet" href="toast.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="toast.js"></script>
   <script src="admin.js"></script>
 </body>
