@@ -1,5 +1,16 @@
 [
   {
+    "id": "0e5dd56b-e1ed-458a-8957-faa716655ab5",
+    "title": "Cybersecurity",
+    "description": "Train for the upcoming job market",
+    "icon": "fas fa brain",
+    "category": "Cybersecurity",
+    "features": null,
+    "benefits": null,
+    "created_at": "2025-11-08T06:45:51.821003+00:00",
+    "updated_at": "2025-11-08T06:45:51.821003+00:00"
+  },
+  {
     "id": "0c7f9b3f-16c0-411c-ac58-f1f135a761ae",
     "title": "AI & Machine Learning",
     "description": "Harness the power of AI to automate processes, gain insights, and drive innovation.",

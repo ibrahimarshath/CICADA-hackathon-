@@ -1,7 +1,23 @@
 const SUPABASE_URL = "https://jqxaufurcholgqwskybi.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxeGF1ZnVyY2hvbGdxd3NreWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MTQyODUsImV4cCI6MjA3ODA5MDI4NX0.FYMlEiIecY00FKoE9jq3L8hI8fzNqQ3w7DLBiiWAy_g";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Create Supabase client. Prefer the explicit client created on window by index.html (window.supabaseClient)
+const supabase = (function () {
+    try {
+        if (window?.supabaseClient) return window.supabaseClient;
+        // fallbacks for environments where index.html didn't pre-create the client
+        if (window?.supabase && typeof window.supabase.createClient === 'function') {
+            return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+        if (typeof createClient === 'function') {
+            return createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+    } catch (err) {
+        console.warn('Supabase client create error:', err);
+    }
+    console.warn('Supabase client not initialized. Auth features will be disabled.');
+    return null;
+})();
 
 console.log("✅ Supabase initialized:", supabase);
 
@@ -599,9 +615,43 @@ if (userLoginForm) {
         const formData = new FormData(userLoginForm);
         const data = Object.fromEntries(formData);
         
-        console.log('User login:', data);
-        toast.info('Login functionality will be implemented in the backend integration phase.');
-        closeAuthModal();
+        // Use Supabase Auth to sign in
+        (async () => {
+            if (!supabase) {
+                toast.error('Auth is not available (supabase client missing)');
+                return;
+            }
+
+            const email = data.email?.trim();
+            const password = data.password;
+
+            if (!email || !password) {
+                toast.error('Please provide email and password');
+                return;
+            }
+
+            try {
+                const { data: authData, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) {
+                    console.error('Sign in error:', error);
+                    toast.error(error.message || 'Login failed');
+                    return;
+                }
+
+                // store session info in localStorage for client-side use
+                try { localStorage.setItem('userSession', JSON.stringify(authData)); } catch (e) { /* ignore */ }
+
+                toast.success('Login successful!');
+                closeAuthModal();
+            } catch (err) {
+                console.error('Login exception:', err);
+                toast.error('Login failed. Check console for details.');
+            }
+        })();
     });
 }
 
@@ -612,17 +662,68 @@ if (userSignupForm) {
         const formData = new FormData(userSignupForm);
         const data = Object.fromEntries(formData);
         
-        if (data.password !== data.confirmPassword) {
-            toast.error('Passwords do not match!');
-            return;
-        }
-        
-        console.log('User signup:', data);
-        toast.success('Account created successfully! You can now login.');
-        
-        loginFormContainer.style.display = 'block';
-        signupFormContainer.style.display = 'none';
-        userSignupForm.reset();
+        (async () => {
+            if (!supabase) {
+                toast.error('Auth is not available (supabase client missing)');
+                return;
+            }
+
+            if (data.password !== data.confirmPassword) {
+                toast.error('Passwords do not match!');
+                return;
+            }
+
+            const email = data.email?.trim();
+            const password = data.password;
+            const name = data.name?.trim();
+
+            if (!email || !password) {
+                toast.error('Please provide email and password');
+                return;
+            }
+
+            try {
+                const { data: signData, error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: { name }
+                    }
+                });
+
+                if (error) {
+                    console.error('Sign up error:', error);
+                    toast.error(error.message || 'Signup failed');
+                    return;
+                }
+
+                toast.success('Signup successful! Attempting to sign you in...');
+
+                // Try to sign in automatically
+                try {
+                    const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+                    if (signInErr) {
+                        console.warn('Auto sign-in failed:', signInErr);
+                        // fallback: show login form
+                        loginFormContainer.style.display = 'block';
+                        signupFormContainer.style.display = 'none';
+                    } else {
+                        try { localStorage.setItem('userSession', JSON.stringify(signInData)); } catch (e) { /* ignore */ }
+                        toast.success('Signed in successfully!');
+                        closeAuthModal();
+                    }
+                } catch (siErr) {
+                    console.warn('Auto sign-in exception:', siErr);
+                    loginFormContainer.style.display = 'block';
+                    signupFormContainer.style.display = 'none';
+                }
+
+                userSignupForm.reset();
+            } catch (err) {
+                console.error('Signup exception:', err);
+                toast.error('Signup failed. Check console for details.');
+            }
+        })();
     });
 }
 
@@ -764,16 +865,84 @@ function generateResume(template) {
 }
 
 // ========================================
-// JOB APPLICATION BUTTONS
+// JOB APPLICATION MODAL + UPLOAD
 // ========================================
 
 const applyButtons = document.querySelectorAll('.apply-btn');
+const jobApplyModal = document.getElementById('jobApplyModal');
+const jobApplyOverlay = document.getElementById('jobApplyOverlay');
+const jobApplyClose = document.getElementById('jobApplyClose');
+const jobApplyForm = document.getElementById('jobApplyForm');
+const jobApplyTitle = document.getElementById('jobApplyTitle');
+const applyPositionInput = document.getElementById('applyPosition');
+const resumeFileInput = document.getElementById('resumeFileInput');
+
+function openJobApplyModal(position) {
+    if (!jobApplyModal) return;
+    jobApplyTitle.textContent = `Apply — ${position}`;
+    applyPositionInput.value = position;
+    jobApplyModal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeJobApplyModal() {
+    if (!jobApplyModal) return;
+    jobApplyModal.classList.remove('show');
+    document.body.style.overflow = '';
+    if (jobApplyForm) jobApplyForm.reset();
+}
 
 applyButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        toast.info('Job application form will be implemented in the next phase. This will open a modal with an application form and resume upload functionality.');
+    button.addEventListener('click', (e) => {
+        const card = e.target.closest('.job-card');
+        const title = card?.querySelector('h4')?.textContent?.trim() || 'Open Position';
+        openJobApplyModal(title);
     });
 });
+
+if (jobApplyClose) jobApplyClose.addEventListener('click', closeJobApplyModal);
+if (jobApplyOverlay) jobApplyOverlay.addEventListener('click', closeJobApplyModal);
+
+// Submit application (multipart/form-data)
+if (jobApplyForm) {
+    jobApplyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const file = resumeFileInput?.files?.[0];
+        if (!file) {
+            toast.error('Please attach your resume file.');
+            return;
+        }
+
+        // Simple client-side validation: size limit 5MB
+        const MAX_BYTES = 5 * 1024 * 1024;
+        if (file.size > MAX_BYTES) {
+            toast.error('File is too large. Maximum allowed size is 5 MB.');
+            return;
+        }
+
+        const formData = new FormData(jobApplyForm);
+
+        try {
+            const resp = await fetch('/api/apply', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => ({ error: 'Upload failed' }));
+                throw new Error(err.error || `HTTP ${resp.status}`);
+            }
+
+            const result = await resp.json().catch(() => ({}));
+            toast.success(result.message || 'Application submitted successfully!');
+            closeJobApplyModal();
+        } catch (error) {
+            console.error('Application submit error:', error);
+            toast.error('Failed to submit application. Please try again later.');
+        }
+    });
+}
 
 // ========================================
 // CHATBOT WIDGET

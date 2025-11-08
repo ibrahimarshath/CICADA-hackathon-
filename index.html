@@ -832,11 +832,55 @@
     </div>
   </div>
 
-    <script type="module">
-      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-      window.supabase = { createClient };
+  <!-- Job Application Modal -->
+  <div id="jobApplyModal" class="service-modal">
+    <div class="service-modal-overlay" id="jobApplyOverlay"></div>
+    <div class="service-modal-dialog">
+      <button class="service-modal-close" id="jobApplyClose"><i class="fas fa-times"></i></button>
+      <div class="service-modal-content">
+        <h3 id="jobApplyTitle">Apply for Position</h3>
+        <form id="jobApplyForm" enctype="multipart/form-data">
+          <input type="hidden" name="position" id="applyPosition" />
+          <div class="form-row">
+            <input type="text" name="name" placeholder="Full Name" required />
+            <input type="email" name="email" placeholder="Email" required />
+          </div>
+          <div class="form-row">
+            <input type="text" name="phone" placeholder="Phone" />
+          </div>
+
+          <label>Upload Resume (PDF, DOC, DOCX)</label>
+          <input type="file" name="resume" id="resumeFileInput" accept=".pdf,.doc,.docx" required />
+
+          <textarea name="message" rows="3" placeholder="Optional message / cover note"></textarea>
+
+          <button class="btn btn-primary btn-block" type="submit">Submit Application</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+    <!-- Load Supabase UMD before our app script to ensure a stable global client is available -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script>
+      // Expose a ready-to-use Supabase client on window.supabaseClient using the public ANON key
+      // NOTE: Keep the anon key in sync with script.js if you change it there.
+      window.SUPABASE_URL = 'https://jqxaufurcholgqwskybi.supabase.co';
+      window.SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxeGF1ZnVyY2hvbGdxd3NreWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MTQyODUsImV4cCI6MjA3ODA5MDI4NX0.FYMlEiIecY00FKoE9jq3L8hI8fzNqQ3w7DLBiiWAy_g';
+      try {
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+          window.supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+          console.debug('supabaseClient initialized on window');
+        } else if (typeof supabase !== 'undefined' && typeof supabase.createClient === 'function') {
+          window.supabaseClient = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+          console.debug('supabaseClient initialized from UMD supabase');
+        } else {
+          console.warn('Supabase UMD not available; auth features will be disabled');
+        }
+      } catch (err) {
+        console.error('Error creating supabaseClient:', err);
+      }
     </script>
-    <script nomodule src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link rel="stylesheet" href="toast.css"/>
 <script src="toast.js"></script>
 <script src="script.js"></script>

@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 
 // Local fallback storage for environments without Supabase or during dev
 const DATA_DIR = path.join(__dirname, 'data');
@@ -18,6 +19,29 @@ function ensureDataDir() {
     try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch (err) { console.warn('Failed to create data dir:', err); }
   }
 }
+
+// Ensure uploads directory exists
+const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
+function ensureUploadsDir() {
+  ensureDataDir();
+  if (!fs.existsSync(UPLOADS_DIR)) {
+    try { fs.mkdirSync(UPLOADS_DIR, { recursive: true }); } catch (err) { console.warn('Failed to create uploads dir:', err); }
+  }
+}
+
+ensureUploadsDir();
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, UPLOADS_DIR);
+  },
+  filename: function (req, file, cb) {
+    const safe = Date.now() + '-' + file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    cb(null, safe);
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB
 
 async function readAboutFile() {
   try {
@@ -880,6 +904,89 @@ app.get('/api/health', (req, res) => {
     message: 'Mastersolis Backend API is running',
     timestamp: new Date().toISOString()
   });
+});
+
+// ========================================
+// JOB APPLICATION UPLOAD
+// ========================================
+
+// Save applications to local data/applications.json as fallback
+const APPLICATIONS_FILE = path.join(DATA_DIR, 'applications.json');
+function readApplicationsFile() {
+  try {
+    ensureDataDir();
+    if (!fs.existsSync(APPLICATIONS_FILE)) return [];
+    const txt = fs.readFileSync(APPLICATIONS_FILE, 'utf8');
+    return JSON.parse(txt || '[]');
+  } catch (err) {
+    console.warn('readApplicationsFile error:', err);
+    return [];
+  }
+}
+
+function writeApplicationsFile(arr) {
+  try {
+    ensureDataDir();
+    fs.writeFileSync(APPLICATIONS_FILE, JSON.stringify(arr || [], null, 2), 'utf8');
+    return true;
+  } catch (err) {
+    console.warn('writeApplicationsFile error:', err);
+    return false;
+  }
+}
+
+app.post('/api/apply', upload.single('resume'), async (req, res) => {
+  try {
+    const { name, email, phone, message, position } = req.body;
+    const file = req.file;
+
+    if (!name || !email || !file || !position) {
+      // minimal validation
+      return res.status(400).json({ error: 'Name, email, position and resume are required' });
+    }
+
+    const record = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+      name,
+      email,
+      phone: phone || null,
+      message: message || null,
+      position,
+      resume_path: path.relative(__dirname, file.path),
+      original_filename: file.originalname,
+      uploaded_at: new Date().toISOString()
+    };
+
+    // Try to insert into Supabase 'applications' table; fallback to local file
+    try {
+      const { data, error } = await supabase
+        .from('applications')
+        .insert([record])
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // keep local backup too
+      const list = readApplicationsFile();
+      list.unshift(data);
+      writeApplicationsFile(list);
+
+      return res.json({ success: true, message: 'Application submitted successfully (Supabase)', data });
+    } catch (supErr) {
+      // Supabase might not have the table; fallback to file
+      console.warn('Supabase insert failed for /api/apply, saving locally:', supErr && supErr.message);
+      const list = readApplicationsFile();
+      list.unshift(record);
+      writeApplicationsFile(list);
+      return res.json({ success: true, message: 'Application submitted successfully (local backup)' });
+    }
+  } catch (err) {
+    console.error('Application upload error:', err);
+    res.status(500).json({ error: 'Failed to submit application' });
+  }
 });
 
 // ========================================
