@@ -471,63 +471,94 @@ const showLoginBtn = document.getElementById('showLogin');
 const showAdminLoginBtn = document.getElementById('showAdminLogin');
 const backToUserLoginBtn = document.getElementById('backToUserLogin');
 
-loginBtn.addEventListener('click', () => {
-    authModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-});
+if (loginBtn) {
+  loginBtn.addEventListener('click', () => {
+      authModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+  });
+}
 
 function closeAuthModal() {
     authModal.classList.remove('active');
     document.body.style.overflow = '';
 }
 
-authClose.addEventListener('click', closeAuthModal);
-authModalOverlay.addEventListener('click', closeAuthModal);
+if (authClose) {
+  authClose.addEventListener('click', closeAuthModal);
+}
 
-showSignupBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginFormContainer.style.display = 'none';
-    signupFormContainer.style.display = 'block';
-    adminLoginFormContainer.style.display = 'none';
-});
+if (authModalOverlay) {
+  authModalOverlay.addEventListener('click', closeAuthModal);
+}
 
-showLoginBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginFormContainer.style.display = 'block';
-    signupFormContainer.style.display = 'none';
-    adminLoginFormContainer.style.display = 'none';
-});
+if (showSignupBtn) {
+  showSignupBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginFormContainer.style.display = 'none';
+      signupFormContainer.style.display = 'block';
+      adminLoginFormContainer.style.display = 'none';
+  });
+}
 
-showAdminLoginBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginFormContainer.style.display = 'none';
-    signupFormContainer.style.display = 'none';
-    adminLoginFormContainer.style.display = 'block';
-});
+if (showLoginBtn) {
+  showLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginFormContainer.style.display = 'block';
+      signupFormContainer.style.display = 'none';
+      adminLoginFormContainer.style.display = 'none';
+  });
+}
 
-backToUserLoginBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginFormContainer.style.display = 'block';
-    signupFormContainer.style.display = 'none';
-    adminLoginFormContainer.style.display = 'none';
-});
+if (showAdminLoginBtn) {
+  showAdminLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginFormContainer.style.display = 'none';
+      signupFormContainer.style.display = 'none';
+      adminLoginFormContainer.style.display = 'block';
+  });
+}
+
+if (backToUserLoginBtn) {
+  backToUserLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginFormContainer.style.display = 'block';
+      signupFormContainer.style.display = 'none';
+      adminLoginFormContainer.style.display = 'none';
+  });
+}
 
 const userLoginForm = document.getElementById('userLoginForm');
 if (userLoginForm) {
-    userLoginForm.addEventListener('submit', (e) => {
+    userLoginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(userLoginForm);
         const data = Object.fromEntries(formData);
         
-        console.log('User login:', data);
-        toast.info('Login functionality will be implemented in the backend integration phase.');
-        closeAuthModal();
+        try {
+            const { data: authData, error } = await supabase.auth.signInWithPassword({
+                email: data.email,
+                password: data.password
+            });
+
+            if (error) throw error;
+
+            toast.success('Login successful!');
+            closeAuthModal();
+            
+            // Update UI immediately
+            if (typeof updateAuthUI === 'function') {
+                await updateAuthUI();
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            toast.error(error.message || 'Login failed. Please check your credentials.');
+        }
     });
 }
 
 const userSignupForm = document.getElementById('userSignupForm');
 if (userSignupForm) {
-    userSignupForm.addEventListener('submit', (e) => {
+    userSignupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(userSignupForm);
         const data = Object.fromEntries(formData);
@@ -536,13 +567,35 @@ if (userSignupForm) {
             toast.error('Passwords do not match!');
             return;
         }
+
+        if (data.password.length < 6) {
+            toast.error('Password must be at least 6 characters long');
+            return;
+        }
         
-        console.log('User signup:', data);
-        toast.success('Account created successfully! You can now login.');
-        
-        loginFormContainer.style.display = 'block';
-        signupFormContainer.style.display = 'none';
-        userSignupForm.reset();
+        try {
+            const { data: authData, error } = await supabase.auth.signUp({
+                email: data.email,
+                password: data.password,
+                options: {
+                    data: {
+                        name: data.name,
+                        full_name: data.name
+                    }
+                }
+            });
+
+            if (error) throw error;
+
+            toast.success('Account created successfully! Please check your email to verify your account.');
+            
+            loginFormContainer.style.display = 'block';
+            signupFormContainer.style.display = 'none';
+            userSignupForm.reset();
+        } catch (error) {
+            console.error('Signup error:', error);
+            toast.error(error.message || 'Failed to create account. Please try again.');
+        }
     });
 }
 
@@ -556,60 +609,36 @@ if (adminLoginFormSubmit) {
         const data = Object.fromEntries(formData);
 
         try {
-            // Check if server is running first
-            try {
-                const healthCheck = await fetch('/api/health');
-                if (!healthCheck.ok) {
-                    throw new Error('Server health check failed');
-                }
-            } catch (healthError) {
-                toast.error("Cannot connect to server. Please make sure:<br>1. The backend server is running (npm start)<br>2. Server is running on http://localhost:3000<br>3. No firewall is blocking the connection");
-                console.error('Server health check failed:', healthError);
-                return;
-            }
-
-            // Call backend login endpoint
-            const response = await fetch('/admin/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: data.email,
-                    password: data.password
-                })
+            // Use Supabase Auth for admin login
+            const { data: authData, error } = await supabase.auth.signInWithPassword({
+                email: data.email,
+                password: data.password
             });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-                throw new Error(errorData.error || `HTTP ${response.status}`);
+            if (error) throw error;
+
+            // Check if user has admin role in metadata
+            const userRole = authData.user?.user_metadata?.role;
+            if (userRole !== 'admin') {
+                await supabase.auth.signOut();
+                throw new Error('Access denied. Admin privileges required.');
             }
 
-            const result = await response.json();
+            // Store session info
+            localStorage.setItem('adminSession', JSON.stringify(authData));
+            localStorage.setItem('adminUser', JSON.stringify(authData.user));
+            
+            // Show success message
+            toast.success('Admin login successful! Redirecting to admin dashboard...');
 
-            if (result.success && result.token) {
-                // Store token in localStorage
-                localStorage.setItem('adminToken', result.token);
-                localStorage.setItem('adminUser', JSON.stringify(result.user));
-                
-                // Show success message
-                toast.success('Login successful! Redirecting to admin dashboard...');
-                
-                // Close modal & redirect to admin dashboard
-                setTimeout(() => {
-                    closeAuthModal();
-                    window.location.href = "admin.html";
-                }, 1000);
-            } else {
-                toast.error(result.error || 'Login failed');
-            }
+            // Close modal & redirect to admin dashboard
+            setTimeout(() => {
+                closeAuthModal();
+                window.location.href = "admin.html";
+            }, 1000);
         } catch (error) {
-            console.error('Login error:', error);
-            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                toast.error("Cannot connect to server. Please make sure:<br>1. The backend server is running (npm start)<br>2. Server is running on http://localhost:3000<br>3. No firewall is blocking the connection");
-            } else {
-                toast.error("Login failed: " + error.message);
-            }
+            console.error('Admin login error:', error);
+            toast.error(error.message || 'Admin login failed. Please check your credentials.');
         }
     });
 }
@@ -630,7 +659,7 @@ document.addEventListener('keydown', (e) => {
 const openResumeModalBtn = document.getElementById('openResumeModal');
 const resumeModal = document.getElementById('resumeModal');
 const closeResumeModalBtn = document.getElementById('closeResumeModal');
-const resumeModalOverlay = resumeModal.querySelector('.resume-modal__overlay');
+const resumeModalOverlay = resumeModal ? resumeModal.querySelector('.resume-modal__overlay') : null;
 
 const resumeFormStep = document.getElementById('resumeFormStep');
 const resumeTemplateStep = document.getElementById('resumeTemplateStep');
@@ -638,12 +667,14 @@ const resumeForm = document.getElementById('resumeForm');
 
 let resumeFormData = {};
 
-openResumeModalBtn.addEventListener('click', () => {
-    resumeModal.classList.add('show');
-    resumeFormStep.classList.add('active');
-    resumeTemplateStep.classList.remove('active');
-    document.body.style.overflow = 'hidden';
-});
+if (openResumeModalBtn && resumeModal && resumeFormStep && resumeTemplateStep) {
+  openResumeModalBtn.addEventListener('click', () => {
+      resumeModal.classList.add('show');
+      resumeFormStep.classList.add('active');
+      resumeTemplateStep.classList.remove('active');
+      document.body.style.overflow = 'hidden';
+  });
+}
 
 function closeResumeModal() {
     resumeModal.classList.remove('show');
@@ -654,18 +685,27 @@ function closeResumeModal() {
     resumeFormData = {};
 }
 
-closeResumeModalBtn.addEventListener('click', closeResumeModal);
-resumeModalOverlay.addEventListener('click', closeResumeModal);
+if (closeResumeModalBtn) {
+  closeResumeModalBtn.addEventListener('click', closeResumeModal);
+}
 
-resumeForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const formData = new FormData(resumeForm);
-    resumeFormData = Object.fromEntries(formData);
-    
-    resumeFormStep.classList.remove('active');
-    resumeTemplateStep.classList.add('active');
-});
+if (resumeModalOverlay) {
+  resumeModalOverlay.addEventListener('click', closeResumeModal);
+}
+
+if (resumeForm) {
+  resumeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(resumeForm);
+      resumeFormData = Object.fromEntries(formData);
+      
+      if (resumeFormStep && resumeTemplateStep) {
+        resumeFormStep.classList.remove('active');
+        resumeTemplateStep.classList.add('active');
+      }
+  });
+}
 
 document.querySelectorAll('.template-card').forEach(card => {
     card.addEventListener('click', () => {
@@ -906,6 +946,52 @@ const statsSection = document.querySelector('.stats-section');
 if (statsSection) {
     statsObserver.observe(statsSection);
 }
+
+// ========================================
+// AUTH STATE MANAGEMENT
+// ========================================
+
+// Check auth state on load and update UI
+async function updateAuthUI() {
+  const { data: { user } } = await supabase.auth.getUser();
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const myApplicationsNav = document.getElementById('myApplicationsNav');
+
+  if (user) {
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+    if (myApplicationsNav) myApplicationsNav.style.display = 'block';
+    
+    if (logoutBtn) {
+      logoutBtn.onclick = async () => {
+        await supabase.auth.signOut();
+        toast.info('You have been logged out');
+        window.location.reload();
+      };
+    }
+  } else {
+    if (loginBtn) loginBtn.style.display = 'inline-flex';
+    if (logoutBtn) logoutBtn.style.display = 'none';
+    if (myApplicationsNav) myApplicationsNav.style.display = 'none';
+  }
+}
+
+// Listen for auth state changes
+supabase.auth.onAuthStateChange((event, session) => {
+  updateAuthUI();
+  
+  if (event === 'SIGNED_IN') {
+    toast.success('Welcome back!');
+  } else if (event === 'SIGNED_OUT') {
+    toast.info('You have been logged out');
+  }
+});
+
+// Initialize auth UI on page load
+document.addEventListener('DOMContentLoaded', async () => {
+  await updateAuthUI();
+});
 
 // ========================================
 // INITIALIZE

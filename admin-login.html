@@ -14,21 +14,23 @@
 
       <form id="adminLoginForm" class="auth-form">
         <label>Email</label>
-        <input type="email" name="email" title="email" value="admin@mastersolis.com" required />
+        <input type="email" name="email" title="email" placeholder="admin@mastersolis.com" required />
 
         <label>Password</label>
-        <input type="password" name="password" title="password" value="admin123" minlength="6" required />
+        <input type="password" name="password" title="password" placeholder="Password" minlength="6" required />
 
         <button type="submit" class="btn primary">Login</button>
         <p id="loginMsg" class="msg"></p>
       </form>
 
       <div class="auth-links">
-        <a href="admin-signup.html">Need an admin account? Signup</a>
+        <a href="index.html">Back to Home</a>
       </div>
     </div>
   </div>
 
-  <script src="admin.js"></script>
+  <link rel="stylesheet" href="toast.css"/>
+  <script src="toast.js"></script>
+  <script src="admin-login.js"></script>
 </body>
 </html>

@@ -1,49 +1,35 @@
-const API_BASE_URL = '/api';
+// Initialize Supabase
+const SUPABASE_URL = "https://jqxaufurcholgqwskybi.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxeGF1ZnVyY2hvbGdxd3NreWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MTQyODUsImV4cCI6MjA3ODA5MDI4NX0.FYMlEiIecY00FKoE9jq3L8hI8fzNqQ3w7DLBiiWAy_g";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Check authentication on page load
-window.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem('adminToken');
-  if (!token) {
+window.addEventListener('DOMContentLoaded', async () => {
+  // Check Supabase auth session
+  const { data: { session }, error } = await supabase.auth.getSession();
+  
+  if (!session || !session.user) {
     window.location.href = 'index.html';
     return;
   }
 
-  // Verify token
-  verifyToken(token);
-  
+  // Check if user has admin role
+  const userRole = session.user.user_metadata?.role;
+  if (userRole !== 'admin') {
+    await supabase.auth.signOut();
+    window.location.href = 'index.html';
+    return;
+  }
+
   // Load initial data
   loadStats();
   loadHomepage();
   loadAbout();
   loadServices();
+  loadJobs();
+  loadJobSelector();
 });
-
-// Verify JWT token
-async function verifyToken(token) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/verify`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Invalid token');
-    }
-  } catch (error) {
-    console.error('Token verification failed:', error);
-    logout();
-  }
-}
-
-// Get auth headers
-function getAuthHeaders() {
-  const token = localStorage.getItem('adminToken');
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  };
-}
 
 // Show section
 function showSection(sectionName) {
@@ -59,23 +45,33 @@ function showSection(sectionName) {
   });
 
   // Show selected section
-  document.getElementById(`${sectionName}-section`).classList.remove('hidden');
+  const section = document.getElementById(`${sectionName}-section`);
+  if (section) {
+    section.classList.remove('hidden');
+  }
   
   // Add active class to clicked button
-  event.target.classList.add('active', 'border-primary-dark', 'text-primary-dark');
-  event.target.classList.remove('border-transparent', 'text-gray');
+  if (event && event.target) {
+    event.target.classList.add('active', 'border-primary-dark', 'text-primary-dark');
+    event.target.classList.remove('border-transparent', 'text-gray');
+  }
 
   // Load data when switching sections
   if (sectionName === 'messages') {
     loadMessages();
   } else if (sectionName === 'services') {
     loadServices();
+  } else if (sectionName === 'jobs') {
+    loadJobs();
+  } else if (sectionName === 'applications') {
+    loadJobSelector();
   }
 }
 
 // Logout
-function logout() {
-  localStorage.removeItem('adminToken');
+async function logout() {
+  await supabase.auth.signOut();
+  localStorage.removeItem('adminSession');
   localStorage.removeItem('adminUser');
   window.location.href = 'index.html';
 }
@@ -83,23 +79,17 @@ function logout() {
 // Load stats
 async function loadStats() {
   try {
-    const token = localStorage.getItem('adminToken');
-    
     const [messagesRes, servicesRes] = await Promise.all([
-      fetch(`${API_BASE_URL}/contact-messages?page=1&limit=1`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }),
-      fetch(`${API_BASE_URL}/services`)
+      supabase.from('contact_messages').select('id', { count: 'exact', head: true }),
+      supabase.from('services').select('id', { count: 'exact', head: true })
     ]);
 
-    if (messagesRes.ok) {
-      const messagesData = await messagesRes.json();
-      document.getElementById('messagesCount').textContent = messagesData.pagination?.total || 0;
+    if (messagesRes.count !== null) {
+      document.getElementById('messagesCount').textContent = messagesRes.count || 0;
     }
 
-    if (servicesRes.ok) {
-      const servicesData = await servicesRes.json();
-      document.getElementById('servicesCount').textContent = servicesData.data?.length || 0;
+    if (servicesRes.count !== null) {
+      document.getElementById('servicesCount').textContent = servicesRes.count || 0;
     }
 
     document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString();
@@ -108,21 +98,24 @@ async function loadStats() {
   }
 }
 
-// Homepage Management
+// ========================================
+// HOMEPAGE MANAGEMENT
+// ========================================
+
 async function loadHomepage() {
   try {
-    const token = localStorage.getItem('adminToken');
-    const response = await fetch(`${API_BASE_URL}/homepage`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const result = await response.json();
+    const { data, error } = await supabase
+      .from('homepage')
+      .select('*')
+      .single();
 
-    if (result.success && result.data) {
-      const form = document.getElementById('homepageForm');
-      form.title.value = result.data.title || '';
-      form.subtitle.value = result.data.subtitle || '';
-      form.description.value = result.data.description || '';
-      form.hero_image.value = result.data.hero_image || '';
+    if (error && error.code !== 'PGRST116') throw error;
+
+    if (data) {
+      document.querySelector('#homepageForm input[name="title"]').value = data.title || '';
+      document.querySelector('#homepageForm input[name="subtitle"]').value = data.subtitle || '';
+      document.querySelector('#homepageForm textarea[name="description"]').value = data.description || '';
+      document.querySelector('#homepageForm input[name="hero_image"]').value = data.hero_image || '';
     }
   } catch (error) {
     console.error('Error loading homepage:', error);
@@ -130,49 +123,45 @@ async function loadHomepage() {
   }
 }
 
-document.getElementById('homepageForm').addEventListener('submit', async (e) => {
+document.getElementById('homepageForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
+  const formData = new FormData(e.target);
   const data = Object.fromEntries(formData);
 
   try {
-    const token = localStorage.getItem('adminToken');
-    const response = await fetch(`${API_BASE_URL}/homepage`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(data)
-    });
+    const { error } = await supabase
+      .from('homepage')
+      .upsert({
+        id: 1,
+        ...data,
+        updated_at: new Date().toISOString()
+      });
 
-    const result = await response.json();
-
-    if (result.success) {
-      showNotification('✅ Homepage saved successfully!', 'success');
-      loadHomepage();
-      loadStats();
-    } else {
-      showNotification('❌ Failed to save: ' + (result.error || 'Unknown error'), 'error');
-    }
+    if (error) throw error;
+    showNotification('Homepage content saved successfully!', 'success');
   } catch (error) {
     console.error('Error saving homepage:', error);
-    showNotification('❌ Failed to save homepage', 'error');
+    showNotification('Failed to save homepage content', 'error');
   }
 });
 
-// About Management
+// ========================================
+// ABOUT MANAGEMENT
+// ========================================
+
 async function loadAbout() {
   try {
-    const token = localStorage.getItem('adminToken');
-    const response = await fetch(`${API_BASE_URL}/about`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const result = await response.json();
+    const { data, error } = await supabase
+      .from('about')
+      .select('*')
+      .single();
 
-    if (result.success && result.data) {
-      const form = document.getElementById('aboutForm');
-      form.mission.value = result.data.mission || '';
-      form.vision.value = result.data.vision || '';
-      form.values.value = result.data.values || '';
+    if (error && error.code !== 'PGRST116') throw error;
+
+    if (data) {
+      document.querySelector('#aboutForm textarea[name="mission"]').value = data.mission || '';
+      document.querySelector('#aboutForm textarea[name="vision"]').value = data.vision || '';
+      document.querySelector('#aboutForm textarea[name="values"]').value = data.values || '';
     }
   } catch (error) {
     console.error('Error loading about:', error);
@@ -180,247 +169,504 @@ async function loadAbout() {
   }
 }
 
-document.getElementById('aboutForm').addEventListener('submit', async (e) => {
+document.getElementById('aboutForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
+  const formData = new FormData(e.target);
   const data = Object.fromEntries(formData);
 
   try {
-    const token = localStorage.getItem('adminToken');
-    const response = await fetch(`${API_BASE_URL}/about`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(data)
-    });
+    const { error } = await supabase
+      .from('about')
+      .upsert({
+        id: 1,
+        ...data,
+        updated_at: new Date().toISOString()
+      });
 
-    const result = await response.json();
-
-    if (result.success) {
-      showNotification('✅ About page saved successfully!', 'success');
-      loadAbout();
-      loadStats();
-    } else {
-      showNotification('❌ Failed to save: ' + (result.error || 'Unknown error'), 'error');
-    }
+    if (error) throw error;
+    showNotification('About content saved successfully!', 'success');
   } catch (error) {
     console.error('Error saving about:', error);
-    showNotification('❌ Failed to save about page', 'error');
+    showNotification('Failed to save about content', 'error');
   }
 });
 
-// Services Management
+// ========================================
+// SERVICES MANAGEMENT
+// ========================================
+
 async function loadServices() {
   const servicesList = document.getElementById('servicesList');
-  servicesList.innerHTML = '<div class="text-center py-8 text-gray"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p>Loading services...</p></div>';
-
   try {
-    const response = await fetch(`${API_BASE_URL}/services`);
-    const result = await response.json();
+    const { data: services, error } = await supabase
+      .from('services')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-    if (result.success && result.data && result.data.length > 0) {
-      servicesList.innerHTML = `
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-light">
-            <thead class="bg-light">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Title</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Description</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Category</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-light">
-              ${result.data.map(service => `
-                <tr class="hover:bg-light transition-colors">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-dark">${service.title || 'N/A'}</div>
-                  </td>
-                  <td class="px-6 py-4">
-                    <div class="text-sm text-gray">${(service.description || '').substring(0, 100)}${service.description?.length > 100 ? '...' : ''}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" style="background: linear-gradient(135deg, #c56567 0%, #a67552 100%); color: white;">${service.category || 'N/A'}</span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button onclick="deleteService('${service.id}')" class="text-secondary hover:text-primary-dark transition-colors">
-                      <i class="fas fa-trash mr-1"></i>Delete
-                    </button>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+    if (error) throw error;
+
+    if (services && services.length > 0) {
+      servicesList.innerHTML = services.map(service => `
+        <div class="border border-gray-light rounded-lg p-4 mb-4 hover:shadow-md transition-all">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <h4 class="font-bold text-dark mb-2">${service.title}</h4>
+              <p class="text-gray text-sm mb-2">${service.description}</p>
+              <span class="inline-block bg-primary/10 text-primary-dark px-3 py-1 rounded text-sm">${service.category || 'Uncategorized'}</span>
+            </div>
+            <button onclick="deleteService('${service.id}')" class="ml-4 text-secondary hover:text-secondary-dark">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
         </div>
-      `;
+      `).join('');
     } else {
-      servicesList.innerHTML = '<div class="text-center py-12 text-gray"><i class="fas fa-inbox text-4xl mb-4"></i><p>No services found</p></div>';
+      servicesList.innerHTML = '<p class="text-gray">No services found</p>';
     }
   } catch (error) {
     console.error('Error loading services:', error);
-    servicesList.innerHTML = '<div class="text-center py-12 text-secondary"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><p>Failed to load services</p></div>';
+    servicesList.innerHTML = '<p class="text-secondary">Failed to load services</p>';
   }
 }
 
-async function deleteService(id) {
-  if (!confirm('Are you sure you want to delete this service?')) {
-    return;
-  }
-
-  try {
-    const token = localStorage.getItem('adminToken');
-    const response = await fetch(`${API_BASE_URL}/services/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      showNotification('✅ Service deleted successfully!', 'success');
-      loadServices();
-      loadStats();
-    } else {
-      showNotification('❌ Failed to delete: ' + (result.error || 'Unknown error'), 'error');
-    }
-  } catch (error) {
-    console.error('Error deleting service:', error);
-    showNotification('❌ Failed to delete service', 'error');
-  }
-}
-
-document.getElementById('serviceForm').addEventListener('submit', async (e) => {
+document.getElementById('serviceForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
+  const formData = new FormData(e.target);
   const data = Object.fromEntries(formData);
 
   try {
-    const token = localStorage.getItem('adminToken');
-    const response = await fetch(`${API_BASE_URL}/services`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(data)
-    });
+    const { error } = await supabase
+      .from('services')
+      .insert([data]);
 
-    const result = await response.json();
-
-    if (result.success) {
-      showNotification('✅ Service added successfully!', 'success');
-      form.reset();
-      loadServices();
-      loadStats();
-    } else {
-      showNotification('❌ Failed to add: ' + (result.error || 'Unknown error'), 'error');
-    }
+    if (error) throw error;
+    showNotification('Service added successfully!', 'success');
+    e.target.reset();
+    loadServices();
   } catch (error) {
     console.error('Error adding service:', error);
-    showNotification('❌ Failed to add service', 'error');
+    showNotification('Failed to add service', 'error');
   }
 });
 
-// Messages Management
-async function loadMessages() {
-  const messagesList = document.getElementById('messagesList');
-  messagesList.innerHTML = '<div class="text-center py-8 text-gray"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p>Loading messages...</p></div>';
+async function deleteService(id) {
+  if (!confirm('Are you sure you want to delete this service?')) return;
 
   try {
-    const token = localStorage.getItem('adminToken');
-    const response = await fetch(`${API_BASE_URL}/contact-messages?page=1&limit=50`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const { error } = await supabase
+      .from('services')
+      .delete()
+      .eq('id', id);
 
-    const result = await response.json();
+    if (error) throw error;
+    showNotification('Service deleted successfully!', 'success');
+    loadServices();
+  } catch (error) {
+    console.error('Error deleting service:', error);
+    showNotification('Failed to delete service', 'error');
+  }
+}
 
-    if (result.success && result.data && result.data.length > 0) {
-      messagesList.innerHTML = `
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-light">
-            <thead class="bg-light">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Email</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Phone</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Subject</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Message</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-light">
-              ${result.data.map(msg => `
-                <tr class="hover:bg-light transition-colors">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-dark">${msg.name || 'N/A'}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray">${msg.email || 'N/A'}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray">${msg.phone || 'N/A'}</div>
-                  </td>
-                  <td class="px-6 py-4">
-                    <div class="text-sm text-dark">${msg.subject || 'N/A'}</div>
-                  </td>
-                  <td class="px-6 py-4">
-                    <div class="text-sm text-gray max-w-xs truncate">${msg.message || 'N/A'}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray">${msg.created_at ? new Date(msg.created_at).toLocaleDateString() : 'N/A'}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button onclick="deleteMessage('${msg.id}')" class="text-secondary hover:text-primary-dark transition-colors">
-                      <i class="fas fa-trash mr-1"></i>Delete
-                    </button>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-          <div class="mt-4 text-sm text-gray">
-            Showing ${result.data.length} of ${result.pagination?.total || 0} messages
+// ========================================
+// JOBS MANAGEMENT
+// ========================================
+
+async function loadJobs() {
+  const jobsTableBody = document.getElementById('jobsTableBody');
+  try {
+    const { data: jobs, error } = await supabase
+      .from('jobs')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (jobs && jobs.length > 0) {
+      jobsTableBody.innerHTML = jobs.map(job => {
+        const statusColors = {
+          'open': 'bg-green-100 text-green-800',
+          'closed': 'bg-red-100 text-red-800',
+          'draft': 'bg-yellow-100 text-yellow-800'
+        };
+        const statusClass = statusColors[job.status] || 'bg-gray-100 text-gray-800';
+
+        return `
+          <tr class="border-b border-gray-light hover:bg-light transition-colors">
+            <td class="px-4 py-3">
+              <div class="font-semibold text-dark">${job.title}</div>
+              ${job.department ? `<div class="text-sm text-gray">${job.department}</div>` : ''}
+            </td>
+            <td class="px-4 py-3 text-gray">${job.location}</td>
+            <td class="px-4 py-3 text-gray">${job.type}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded text-xs font-medium ${statusClass}">${job.status}</span>
+            </td>
+            <td class="px-4 py-3 text-gray text-sm">${new Date(job.created_at).toLocaleDateString()}</td>
+            <td class="px-4 py-3">
+              <div class="flex justify-center gap-2">
+                <button onclick="editJob('${job.id}')" class="text-primary hover:text-primary-dark transition-colors">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteJob('${job.id}')" class="text-secondary hover:text-secondary-dark transition-colors">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    } else {
+      jobsTableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="px-4 py-8 text-center text-gray">
+            <i class="fas fa-inbox text-2xl mb-2"></i>
+            <p>No jobs found</p>
+          </td>
+        </tr>
+      `;
+    }
+  } catch (error) {
+    console.error('Error loading jobs:', error);
+    jobsTableBody.innerHTML = `
+      <tr>
+        <td colspan="6" class="px-4 py-8 text-center text-secondary">
+          <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+          <p>Failed to load jobs</p>
+        </td>
+      </tr>
+    `;
+  }
+}
+
+function showAddJobForm() {
+  document.getElementById('jobFormTitle').textContent = 'Add New Job';
+  document.getElementById('jobForm').reset();
+  document.getElementById('jobId').value = '';
+  document.getElementById('jobFormContainer').classList.remove('hidden');
+  document.getElementById('jobFormContainer').scrollIntoView({ behavior: 'smooth' });
+}
+
+function cancelJobForm() {
+  document.getElementById('jobFormContainer').classList.add('hidden');
+  document.getElementById('jobForm').reset();
+}
+
+async function editJob(id) {
+  try {
+    const { data: job, error } = await supabase
+      .from('jobs')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    document.getElementById('jobFormTitle').textContent = 'Edit Job';
+    document.getElementById('jobId').value = job.id;
+    document.getElementById('jobTitle').value = job.title || '';
+    document.getElementById('jobLocation').value = job.location || '';
+    document.getElementById('jobType').value = job.type || 'Full-time';
+    document.getElementById('jobDepartment').value = job.department || '';
+    document.getElementById('jobSalary').value = job.salary_range || '';
+    document.getElementById('jobDescription').value = job.description || '';
+    document.getElementById('jobRequirements').value = job.requirements || '';
+    document.getElementById('jobSkills').value = Array.isArray(job.skills) ? job.skills.join(', ') : (job.skills || '');
+    document.getElementById('jobStatus').value = job.status || 'open';
+
+    document.getElementById('jobFormContainer').classList.remove('hidden');
+    document.getElementById('jobFormContainer').scrollIntoView({ behavior: 'smooth' });
+  } catch (error) {
+    console.error('Error loading job:', error);
+    showNotification('Failed to load job details', 'error');
+  }
+}
+
+async function deleteJob(id) {
+  if (!confirm('Are you sure you want to delete this job? This will also delete all associated applications.')) return;
+
+  try {
+    const { error } = await supabase
+      .from('jobs')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    showNotification('Job deleted successfully!', 'success');
+    loadJobs();
+    loadJobSelector(); // Refresh job selector
+  } catch (error) {
+    console.error('Error deleting job:', error);
+    showNotification('Failed to delete job', 'error');
+  }
+}
+
+document.getElementById('jobForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const jobId = formData.get('id');
+  
+  const jobData = {
+    title: formData.get('title'),
+    location: formData.get('location'),
+    type: formData.get('type'),
+    department: formData.get('department') || null,
+    salary_range: formData.get('salary_range') || null,
+    description: formData.get('description'),
+    requirements: formData.get('requirements') || null,
+    skills: formData.get('skills') ? formData.get('skills').split(',').map(s => s.trim()).filter(s => s) : [],
+    status: formData.get('status')
+  };
+
+  try {
+    if (jobId) {
+      // Update existing job
+      const { error } = await supabase
+        .from('jobs')
+        .update(jobData)
+        .eq('id', jobId);
+
+      if (error) throw error;
+      showNotification('Job updated successfully!', 'success');
+    } else {
+      // Create new job
+      const { error } = await supabase
+        .from('jobs')
+        .insert([jobData]);
+
+      if (error) throw error;
+      showNotification('Job created successfully!', 'success');
+    }
+
+    cancelJobForm();
+    loadJobs();
+    loadJobSelector(); // Refresh job selector
+  } catch (error) {
+    console.error('Error saving job:', error);
+    showNotification('Failed to save job', 'error');
+  }
+});
+
+// ========================================
+// APPLICATIONS VIEWER
+// ========================================
+
+async function loadJobSelector() {
+  const jobSelector = document.getElementById('jobSelector');
+  try {
+    const { data: jobs, error } = await supabase
+      .from('jobs')
+      .select('id, title')
+      .order('title', { ascending: true });
+
+    if (error) throw error;
+
+    if (jobs && jobs.length > 0) {
+      jobSelector.innerHTML = '<option value="">Select a job...</option>' +
+        jobs.map(job => `<option value="${job.id}">${job.title}</option>`).join('');
+      
+      jobSelector.addEventListener('change', (e) => {
+        if (e.target.value) {
+          loadApplications(e.target.value);
+        } else {
+          document.getElementById('applicationsList').innerHTML = `
+            <div class="text-center py-8 text-gray">
+              <i class="fas fa-info-circle text-2xl mb-2"></i>
+              <p>Select a job to view applications</p>
+            </div>
+          `;
+        }
+      });
+    } else {
+      jobSelector.innerHTML = '<option value="">No jobs available</option>';
+    }
+  } catch (error) {
+    console.error('Error loading job selector:', error);
+    jobSelector.innerHTML = '<option value="">Error loading jobs</option>';
+  }
+}
+
+async function loadApplications(jobId) {
+  const applicationsList = document.getElementById('applicationsList');
+  applicationsList.innerHTML = `
+    <div class="text-center py-8 text-gray">
+      <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+      <p>Loading applications...</p>
+    </div>
+  `;
+
+  try {
+    const { data: applications, error } = await supabase
+      .from('applications')
+      .select(`
+        *,
+        jobs (
+          id,
+          title
+        )
+      `)
+      .eq('job_id', jobId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (applications && applications.length > 0) {
+      applicationsList.innerHTML = applications.map(app => {
+        const statusColors = {
+          'pending': { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: 'fa-clock' },
+          'reviewing': { bg: 'bg-blue-100', text: 'text-blue-800', icon: 'fa-eye' },
+          'accepted': { bg: 'bg-green-100', text: 'text-green-800', icon: 'fa-check-circle' },
+          'rejected': { bg: 'bg-red-100', text: 'text-red-800', icon: 'fa-times-circle' }
+        };
+        const statusStyle = statusColors[app.status] || statusColors.pending;
+
+        return `
+          <div class="border border-gray-light rounded-lg p-6 mb-4 hover:shadow-md transition-all">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h4 class="font-bold text-dark text-lg mb-2">${app.name}</h4>
+                <div class="flex flex-wrap gap-2 text-sm text-gray">
+                  <span><i class="fas fa-envelope"></i> ${app.email}</span>
+                  ${app.phone ? `<span><i class="fas fa-phone"></i> ${app.phone}</span>` : ''}
+                  <span><i class="fas fa-calendar"></i> ${new Date(app.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <span class="px-3 py-1 rounded text-sm font-medium ${statusStyle.bg} ${statusStyle.text}">
+                <i class="fas ${statusStyle.icon} mr-1"></i>${app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+              </span>
+            </div>
+            
+            ${app.cover_letter ? `
+              <div class="mb-4">
+                <h5 class="font-semibold text-dark mb-2">Cover Letter:</h5>
+                <p class="text-gray text-sm leading-relaxed">${app.cover_letter}</p>
+              </div>
+            ` : ''}
+            
+            ${app.resume_url ? `
+              <div class="flex gap-2">
+                <button onclick="downloadResume('${app.resume_url}', '${app.name}')" class="gradient-primary hover:shadow-colored-lg text-white px-4 py-2 rounded-lg font-medium transition-all text-sm">
+                  <i class="fas fa-download mr-2"></i>Download Resume
+                </button>
+                <select onchange="updateApplicationStatus('${app.id}', this.value)" class="px-4 py-2 border-2 border-gray-light rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all text-sm">
+                  <option value="pending" ${app.status === 'pending' ? 'selected' : ''}>Pending</option>
+                  <option value="reviewing" ${app.status === 'reviewing' ? 'selected' : ''}>Reviewing</option>
+                  <option value="accepted" ${app.status === 'accepted' ? 'selected' : ''}>Accepted</option>
+                  <option value="rejected" ${app.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+                </select>
+              </div>
+            ` : ''}
           </div>
+        `;
+      }).join('');
+    } else {
+      applicationsList.innerHTML = `
+        <div class="text-center py-8 text-gray">
+          <i class="fas fa-inbox text-2xl mb-2"></i>
+          <p>No applications found for this job</p>
         </div>
       `;
+    }
+  } catch (error) {
+    console.error('Error loading applications:', error);
+    applicationsList.innerHTML = `
+      <div class="text-center py-8 text-secondary">
+        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+        <p>Failed to load applications</p>
+      </div>
+    `;
+  }
+}
+
+async function downloadResume(resumeUrl, candidateName) {
+  try {
+    // Extract file path from URL
+    const urlParts = resumeUrl.split('/');
+    const bucket = 'resumes';
+    const filePath = urlParts.slice(urlParts.indexOf(bucket) + 1).join('/');
+
+    // Get signed URL for download
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(filePath, 3600); // 1 hour expiry
+
+    if (error) throw error;
+
+    // Download file
+    const link = document.createElement('a');
+    link.href = data.signedUrl;
+    link.download = `${candidateName}_resume.pdf`;
+    link.click();
+
+    showNotification('Resume download started', 'success');
+  } catch (error) {
+    console.error('Error downloading resume:', error);
+    showNotification('Failed to download resume', 'error');
+  }
+}
+
+async function updateApplicationStatus(applicationId, newStatus) {
+  try {
+    const { error } = await supabase
+      .from('applications')
+      .update({ status: newStatus })
+      .eq('id', applicationId);
+
+    if (error) throw error;
+    showNotification('Application status updated!', 'success');
+    
+    // Reload applications
+    const jobId = document.getElementById('jobSelector').value;
+    if (jobId) {
+      loadApplications(jobId);
+    }
+  } catch (error) {
+    console.error('Error updating application status:', error);
+    showNotification('Failed to update application status', 'error');
+  }
+}
+
+// ========================================
+// MESSAGES MANAGEMENT
+// ========================================
+
+async function loadMessages() {
+  const messagesList = document.getElementById('messagesList');
+  try {
+    const { data: messages, error } = await supabase
+      .from('contact_messages')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error) throw error;
+
+    if (messages && messages.length > 0) {
+      messagesList.innerHTML = messages.map(msg => `
+        <div class="border border-gray-light rounded-lg p-4 mb-4 hover:shadow-md transition-all">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h4 class="font-bold text-dark">${msg.name}</h4>
+              <p class="text-sm text-gray">${msg.email}</p>
+            </div>
+            <span class="text-xs text-gray">${new Date(msg.created_at).toLocaleDateString()}</span>
+          </div>
+          <p class="text-gray">${msg.message}</p>
+        </div>
+      `).join('');
     } else {
-      messagesList.innerHTML = '<div class="text-center py-12 text-gray"><i class="fas fa-inbox text-4xl mb-4"></i><p>No messages found</p></div>';
+      messagesList.innerHTML = '<p class="text-gray">No messages found</p>';
     }
   } catch (error) {
     console.error('Error loading messages:', error);
-    messagesList.innerHTML = '<div class="text-center py-12 text-secondary"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><p>Failed to load messages. Make sure you are authenticated.</p></div>';
+    messagesList.innerHTML = '<p class="text-secondary">Failed to load messages</p>';
   }
 }
 
-async function deleteMessage(id) {
-  if (!confirm('Are you sure you want to delete this message?')) {
-    return;
-  }
+// ========================================
+// NOTIFICATION HELPER
+// ========================================
 
-  try {
-    const token = localStorage.getItem('adminToken');
-    const response = await fetch(`${API_BASE_URL}/contact-messages/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      showNotification('✅ Message deleted successfully!', 'success');
-      loadMessages();
-      loadStats();
-    } else {
-      showNotification('❌ Failed to delete: ' + (result.error || 'Unknown error'), 'error');
-    }
-  } catch (error) {
-    console.error('Error deleting message:', error);
-    showNotification('❌ Failed to delete message', 'error');
-  }
-}
-
-// Notification helper
 function showNotification(message, type = 'info') {
-  // Use toast notification system
   if (type === 'success') {
     toast.success(message);
   } else if (type === 'error') {

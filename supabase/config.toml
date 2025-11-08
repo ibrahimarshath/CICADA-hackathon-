@@ -1,0 +1,15 @@
+# Supabase Configuration
+# This file configures your Supabase project
+
+[project]
+# Your Supabase project reference ID
+# You can find this in your Supabase dashboard under Settings > General
+
+[auth]
+# Authentication settings
+enabled = true
+
+[functions]
+# Edge Functions configuration
+send-application-confirmation = { verify_jwt = false }
+
