@@ -617,12 +617,70 @@ if (userSignupForm) {
             return;
         }
         
+<<<<<<< HEAD
         console.log('User signup:', data);
         toast.success('Account created successfully! You can now login.');
         
         loginFormContainer.style.display = 'block';
         signupFormContainer.style.display = 'none';
         userSignupForm.reset();
+=======
+        try {
+            const { data: authData, error } = await supabase.auth.signUp({
+                email: data.email,
+                password: data.password,
+                options: {
+                    data: {
+                        name: data.name,
+                        full_name: data.name
+                    },
+                    emailRedirectTo: window.location.origin
+                }
+            });
+
+            if (error) {
+                if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+                    toast.error('An account with this email already exists. Please log in instead.');
+                    loginFormContainer.style.display = 'block';
+                    signupFormContainer.style.display = 'none';
+                    return;
+                } else if (error.message.includes('Password')) {
+                    toast.error('Password does not meet requirements. Please use a stronger password.');
+                    return;
+                } else {
+                    throw error;
+                }
+            }
+
+            // Create profile entry after signup
+            if (authData.user) {
+                try {
+                    await supabase.from('profiles').insert({
+                        id: authData.user.id,
+                        full_name: data.name,
+                        is_admin: false
+                    });
+                } catch (profileError) {
+                    console.warn('Could not create profile:', profileError);
+                    // Profile might already exist or table doesn't exist yet
+                }
+            }
+
+            // Check if email confirmation is required
+            if (authData.user && !authData.session) {
+                toast.success('Account created successfully! Please check your email to verify your account before logging in.');
+            } else {
+                toast.success('Account created successfully! You can now log in.');
+            }
+            
+            loginFormContainer.style.display = 'block';
+            signupFormContainer.style.display = 'none';
+            userSignupForm.reset();
+        } catch (error) {
+            console.error('Signup error:', error);
+            toast.error(error.message || 'Failed to create account. Please try again.');
+        }
+>>>>>>> bd76b1ac5da89082c240eefed5fc44a143370125
     });
 }
 
@@ -648,6 +706,7 @@ if (adminLoginFormSubmit) {
                 return;
             }
 
+<<<<<<< HEAD
             // Call backend login endpoint
             const response = await fetch('/admin/login', {
                 method: 'POST',
@@ -682,13 +741,135 @@ if (adminLoginFormSubmit) {
                 }, 1000);
             } else {
                 toast.error(result.error || 'Login failed');
+=======
+            // Sign in with Supabase Auth
+            const { data: authData, error } = await supabase.auth.signInWithPassword({
+                email: ADMIN_EMAIL,
+                password: ADMIN_PASSWORD
+            });
+
+            if (error) {
+                // If user doesn't exist, try to create admin user
+                if (error.message.includes('Invalid login credentials') || error.message.includes('User not found')) {
+                    console.log('Admin user not found, attempting to create...');
+                    
+                    // Try to create admin user
+                    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                        email: ADMIN_EMAIL,
+                        password: ADMIN_PASSWORD,
+                        options: {
+                            data: {
+                                name: 'Admin',
+                                full_name: 'Admin User'
+                            },
+                            emailRedirectTo: window.location.origin
+                        }
+                    });
+
+                    if (signUpError) {
+                        throw new Error('Unable to create admin account. Please contact support.');
+                    }
+
+                    // Create profile with is_admin = true
+                    if (signUpData.user) {
+                        try {
+                            await supabase.from('profiles').insert({
+                                id: signUpData.user.id,
+                                full_name: 'Admin User',
+                                is_admin: true
+                            });
+                        } catch (profileError) {
+                            console.warn('Could not create admin profile:', profileError);
+                        }
+                    }
+
+                    // User created, but might need email confirmation
+                    if (signUpData.user && !signUpData.session) {
+                        throw new Error('Admin account created. Please check your email to verify the account, then try logging in again.');
+                    }
+
+                    // If session exists, proceed with login
+                    if (signUpData.session) {
+                        // Check profile for admin status
+                        const { data: profile } = await supabase
+                            .from('profiles')
+                            .select('is_admin')
+                            .eq('id', signUpData.user.id)
+                            .single();
+
+                        if (!profile || !profile.is_admin) {
+                            await supabase.auth.signOut();
+                            throw new Error('Not admin');
+                        }
+
+                        // Store session and redirect
+                        localStorage.setItem('adminSession', JSON.stringify(signUpData.session));
+                        localStorage.setItem('adminUser', JSON.stringify(signUpData.user));
+                        toast.success('Admin login successful! Redirecting to admin dashboard...');
+                        setTimeout(() => {
+                            closeAuthModal();
+                            window.location.href = "admin.html";
+                        }, 1000);
+                        return;
+                    }
+                } else {
+                    // Handle other errors
+                    if (error.message.includes('Email not confirmed')) {
+                        throw new Error('Please verify your email before logging in. Check your inbox for a confirmation link.');
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+
+            // Check profile for admin status
+            const user = authData?.user || authData?.session?.user;
+            if (!user) {
+                throw new Error('Failed to retrieve user information');
+            }
+
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('is_admin')
+                .eq('id', user.id)
+                .single();
+
+            if (profileError || !profile) {
+                // Profile doesn't exist, create it with admin status for this email
+                if (user.email === ADMIN_EMAIL) {
+                    try {
+                        await supabase.from('profiles').insert({
+                            id: user.id,
+                            full_name: user.user_metadata?.full_name || 'Admin User',
+                            is_admin: true
+                        });
+                    } catch (insertError) {
+                        console.warn('Could not create admin profile:', insertError);
+                    }
+                    // Allow access for admin email even if profile creation fails
+                } else {
+                    await supabase.auth.signOut();
+                    throw new Error('Not admin');
+                }
+            } else if (!profile.is_admin) {
+                await supabase.auth.signOut();
+                throw new Error('Not admin');
+>>>>>>> bd76b1ac5da89082c240eefed5fc44a143370125
             }
         } catch (error) {
+<<<<<<< HEAD
             console.error('Login error:', error);
             if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
                 toast.error("Cannot connect to server. Please make sure:<br>1. The backend server is running (npm start)<br>2. Server is running on http://localhost:3000<br>3. No firewall is blocking the connection");
             } else {
                 toast.error("Login failed: " + error.message);
+=======
+            console.error('Admin login error:', error);
+            if (error.message === 'Not admin') {
+                toast.error('Access denied. Admin privileges required.');
+            } else {
+                toast.error(error.message || 'Admin login failed. Please check your credentials.');
+>>>>>>> bd76b1ac5da89082c240eefed5fc44a143370125
             }
         }
     });
@@ -1160,6 +1341,122 @@ if (statsSection) {
 }
 
 // ========================================
+<<<<<<< HEAD
+=======
+// AUTH STATE MANAGEMENT
+// ========================================
+
+// Check auth state on load and update UI
+async function updateAuthUI() {
+  const { data: { user } } = await supabase.auth.getUser();
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const myApplicationsNav = document.getElementById('myApplicationsNav');
+
+  if (user) {
+    if (loginBtn) loginBtn.style.display = 'none';
+    if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+    if (myApplicationsNav) myApplicationsNav.style.display = 'block';
+    
+    if (logoutBtn) {
+      logoutBtn.onclick = async () => {
+        await supabase.auth.signOut();
+        toast.info('You have been logged out');
+        window.location.reload();
+      };
+    }
+  } else {
+    if (loginBtn) loginBtn.style.display = 'inline-flex';
+    if (logoutBtn) logoutBtn.style.display = 'none';
+    if (myApplicationsNav) myApplicationsNav.style.display = 'none';
+  }
+}
+
+// Listen for auth state changes
+supabase.auth.onAuthStateChange((event, session) => {
+  updateAuthUI();
+  
+  if (event === 'SIGNED_IN') {
+    toast.success('Welcome back!');
+  } else if (event === 'SIGNED_OUT') {
+    toast.info('You have been logged out');
+  }
+});
+
+// Initialize auth UI on page load
+document.addEventListener('DOMContentLoaded', async () => {
+  await updateAuthUI();
+});
+
+// ========================================
+// VISITOR TRACKING
+// ========================================
+
+async function trackVisitor() {
+  try {
+    // Get user agent and page URL
+    const userAgent = navigator.userAgent;
+    const pageUrl = window.location.href;
+    const referrer = document.referrer || null;
+
+    // Insert visitor record
+    await supabase.from('visitors').insert({
+      user_agent: userAgent,
+      page_url: pageUrl,
+      referrer: referrer
+      // IP address will be captured server-side if needed
+    });
+  } catch (error) {
+    // Silently fail - don't interrupt user experience
+    console.warn('Failed to track visitor:', error);
+  }
+}
+
+// Track visitor on page load
+if (window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname.endsWith('index.html')) {
+  trackVisitor();
+}
+
+// ========================================
+// SERVICE CLICK TRACKING
+// ========================================
+
+// Track service card clicks
+function setupServiceClickTracking() {
+  document.querySelectorAll('.service-card').forEach(card => {
+    card.addEventListener('click', async (e) => {
+      try {
+        // Get service name from h3 element
+        const serviceNameElement = card.querySelector('h3');
+        if (!serviceNameElement) return;
+
+        const serviceName = serviceNameElement.textContent.trim();
+        const userAgent = navigator.userAgent;
+        const pageUrl = window.location.href;
+
+        // Insert service click record
+        await supabase.from('service_clicks').insert({
+          service_name: serviceName,
+          user_agent: userAgent,
+          page_url: pageUrl
+        });
+      } catch (error) {
+        // Silently fail - don't interrupt user experience
+        console.warn('Failed to track service click:', error);
+      }
+    });
+  });
+}
+
+// Setup service click tracking after DOM is loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupServiceClickTracking);
+} else {
+  setupServiceClickTracking();
+}
+
+// ========================================
+>>>>>>> bd76b1ac5da89082c240eefed5fc44a143370125
 // INITIALIZE
 // ========================================
 
