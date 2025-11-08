@@ -417,86 +417,6 @@ projectModalClose.addEventListener('click', closeProjectModal);
 projectModalOverlay.addEventListener('click', closeProjectModal);
 
 // ========================================
-// BLOG READ MORE MODAL
-// ========================================
-
-const blogModal = document.getElementById('blogModal');
-const blogModalContent = blogModal.querySelector('.blog-modal-content');
-const blogModalClose = blogModal.querySelector('.blog-modal-close');
-const blogModalOverlay = blogModal.querySelector('.service-modal-overlay');
-
-const blogData = {
-    'ai-business': {
-        title: 'The Future of AI in Business',
-        author: 'Sarah Mitchell',
-        date: 'Nov 5, 2025',
-        category: 'AI & ML',
-        image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=600&fit=crop',
-        content: `<p>Artificial intelligence is rapidly reshaping how businesses operate. From automating routine tasks to providing deep insights through predictive analytics, AI enables companies to make smarter, faster decisions.</p>
-                  <p>In this article we explore the key areas where AI delivers immediate value: process automation, customer personalization, operational optimization, and data-driven strategy. We'll also look at practical steps organizations can take to adopt AI responsibly and effectively.</p>
-                  <h4>Getting Started with AI</h4>
-                  <p>Begin by identifying high-impact use cases, collect quality data, prototype quickly, and measure outcomes. Building cross-functional teams with domain experts will speed adoption and reduce risk.</p>`
-    },
-    'cloud-migration': {
-        title: 'Cloud Migration Best Practices',
-        author: 'Michael Chen',
-        date: 'Nov 3, 2025',
-        category: 'Cloud',
-        image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=600&fit=crop',
-        content: `<p>Migrating to the cloud can unlock scalability, resilience, and cost savings — but only when done with care. Successful migrations begin with an assessment of the current estate and a clear migration strategy.</p>
-                  <p>We cover lift-and-shift vs refactor, data migration approaches, security and compliance considerations, and validation strategies to ensure minimal downtime and preserved data integrity.</p>`
-    },
-    'web-trends': {
-        title: 'Modern Web Development Trends',
-        author: 'Emma Rodriguez',
-        date: 'Nov 1, 2025',
-        category: 'Development',
-        image: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=1200&h=600&fit=crop',
-        content: `<p>Web development continues to evolve rapidly. In 2025, developers are focusing on performance, accessibility, edge computing, and AI-assisted tooling.</p>
-                  <p>Framework choices, API-first architectures, and strong developer experience are critical factors to build maintainable and scalable web applications.</p>`
-    }
-};
-
-document.querySelectorAll('.blog-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const key = link.dataset.blog;
-        if (key && blogData[key]) {
-            openBlogModal(blogData[key]);
-        } else {
-            // fallback: try to derive from title text
-            const card = link.closest('.blog-card');
-            const title = card?.querySelector('h3')?.textContent?.trim() || '';
-            const derivedKey = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-            if (blogData[derivedKey]) openBlogModal(blogData[derivedKey]);
-            else console.warn('No blog content found for', key || derivedKey);
-        }
-    });
-});
-
-function openBlogModal(data) {
-    blogModalContent.innerHTML = `
-        <div class="blog-modal-inner">
-            <img src="${data.image}" alt="${data.title}" style="width:100%; height:auto; border-radius:8px; margin-bottom:1rem;" />
-            <h2>${data.title}</h2>
-            <div style="color:var(--gray); margin-bottom:0.75rem; font-size:0.95rem;">${data.date} · ${data.author} · ${data.category}</div>
-            <div style="color:var(--dark); line-height:1.6;">${data.content}</div>
-            <div style="margin-top:1.5rem; text-align:center;"><a href="#contact" class="btn btn-primary" onclick="closeBlogModal()">Contact Us</a></div>
-        </div>
-    `;
-    blogModal.classList.add('show');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeBlogModal() {
-    blogModal.classList.remove('show');
-    document.body.style.overflow = '';
-}
-
-blogModalClose.addEventListener('click', closeBlogModal);
-blogModalOverlay.addEventListener('click', closeBlogModal);
-
-// ========================================
 // CONTACT FORM
 // ========================================
 
@@ -551,63 +471,113 @@ const showLoginBtn = document.getElementById('showLogin');
 const showAdminLoginBtn = document.getElementById('showAdminLogin');
 const backToUserLoginBtn = document.getElementById('backToUserLogin');
 
-loginBtn.addEventListener('click', () => {
-    authModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-});
+if (loginBtn) {
+  loginBtn.addEventListener('click', () => {
+      authModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+  });
+}
 
 function closeAuthModal() {
     authModal.classList.remove('active');
     document.body.style.overflow = '';
 }
 
-authClose.addEventListener('click', closeAuthModal);
-authModalOverlay.addEventListener('click', closeAuthModal);
+if (authClose) {
+  authClose.addEventListener('click', closeAuthModal);
+}
 
-showSignupBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginFormContainer.style.display = 'none';
-    signupFormContainer.style.display = 'block';
-    adminLoginFormContainer.style.display = 'none';
-});
+if (authModalOverlay) {
+  authModalOverlay.addEventListener('click', closeAuthModal);
+}
 
-showLoginBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginFormContainer.style.display = 'block';
-    signupFormContainer.style.display = 'none';
-    adminLoginFormContainer.style.display = 'none';
-});
+if (showSignupBtn) {
+  showSignupBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginFormContainer.style.display = 'none';
+      signupFormContainer.style.display = 'block';
+      adminLoginFormContainer.style.display = 'none';
+  });
+}
 
-showAdminLoginBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginFormContainer.style.display = 'none';
-    signupFormContainer.style.display = 'none';
-    adminLoginFormContainer.style.display = 'block';
-});
+if (showLoginBtn) {
+  showLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginFormContainer.style.display = 'block';
+      signupFormContainer.style.display = 'none';
+      adminLoginFormContainer.style.display = 'none';
+  });
+}
 
-backToUserLoginBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginFormContainer.style.display = 'block';
-    signupFormContainer.style.display = 'none';
-    adminLoginFormContainer.style.display = 'none';
-});
+if (showAdminLoginBtn) {
+  showAdminLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginFormContainer.style.display = 'none';
+      signupFormContainer.style.display = 'none';
+      adminLoginFormContainer.style.display = 'block';
+  });
+}
+
+if (backToUserLoginBtn) {
+  backToUserLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginFormContainer.style.display = 'block';
+      signupFormContainer.style.display = 'none';
+      adminLoginFormContainer.style.display = 'none';
+  });
+}
 
 const userLoginForm = document.getElementById('userLoginForm');
 if (userLoginForm) {
-    userLoginForm.addEventListener('submit', (e) => {
+    userLoginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(userLoginForm);
         const data = Object.fromEntries(formData);
         
-        console.log('User login:', data);
-        toast.info('Login functionality will be implemented in the backend integration phase.');
-        closeAuthModal();
+        try {
+            const { data: authData, error } = await supabase.auth.signInWithPassword({
+                email: data.email,
+                password: data.password
+            });
+
+            if (error) {
+                // Handle specific error cases
+                if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
+                    toast.error('Please verify your email before logging in. Check your inbox for a confirmation link.');
+                    return;
+                } else if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
+                    toast.error('Invalid email or password. Please try again.');
+                    return;
+                } else {
+                    throw error;
+                }
+            }
+
+            // Check if we got a valid session
+            if (!authData?.session && !authData?.user) {
+                throw new Error('Login failed: No session created');
+            }
+
+            toast.success('Login successful!');
+            closeAuthModal();
+            
+            // Update UI immediately
+            if (typeof updateAuthUI === 'function') {
+                await updateAuthUI();
+            } else {
+                // Fallback: reload page if updateAuthUI not available
+                setTimeout(() => window.location.reload(), 500);
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            toast.error(error.message || 'Login failed. Please check your credentials.');
+        }
     });
 }
 
 const userSignupForm = document.getElementById('userSignupForm');
 if (userSignupForm) {
-    userSignupForm.addEventListener('submit', (e) => {
+    userSignupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(userSignupForm);
         const data = Object.fromEntries(formData);
@@ -616,15 +586,12 @@ if (userSignupForm) {
             toast.error('Passwords do not match!');
             return;
         }
+
+        if (data.password.length < 6) {
+            toast.error('Password must be at least 6 characters long');
+            return;
+        }
         
-<<<<<<< HEAD
-        console.log('User signup:', data);
-        toast.success('Account created successfully! You can now login.');
-        
-        loginFormContainer.style.display = 'block';
-        signupFormContainer.style.display = 'none';
-        userSignupForm.reset();
-=======
         try {
             const { data: authData, error } = await supabase.auth.signUp({
                 email: data.email,
@@ -680,7 +647,6 @@ if (userSignupForm) {
             console.error('Signup error:', error);
             toast.error(error.message || 'Failed to create account. Please try again.');
         }
->>>>>>> bd76b1ac5da89082c240eefed5fc44a143370125
     });
 }
 
@@ -694,54 +660,15 @@ if (adminLoginFormSubmit) {
         const data = Object.fromEntries(formData);
 
         try {
-            // Check if server is running first
-            try {
-                const healthCheck = await fetch('/api/health');
-                if (!healthCheck.ok) {
-                    throw new Error('Server health check failed');
-                }
-            } catch (healthError) {
-                toast.error("Cannot connect to server. Please make sure:<br>1. The backend server is running (npm start)<br>2. Server is running on http://localhost:3000<br>3. No firewall is blocking the connection");
-                console.error('Server health check failed:', healthError);
-                return;
+            // Hardcoded admin credentials
+            const ADMIN_EMAIL = 'admin@mastersolis-backend';
+            const ADMIN_PASSWORD = 'admin123';
+
+            // Check if credentials match admin credentials
+            if (data.email !== ADMIN_EMAIL || data.password !== ADMIN_PASSWORD) {
+                throw new Error('Invalid admin credentials. Please check your email and password.');
             }
 
-<<<<<<< HEAD
-            // Call backend login endpoint
-            const response = await fetch('/admin/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: data.email,
-                    password: data.password
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-                throw new Error(errorData.error || `HTTP ${response.status}`);
-            }
-
-            const result = await response.json();
-
-            if (result.success && result.token) {
-                // Store token in localStorage
-                localStorage.setItem('adminToken', result.token);
-                localStorage.setItem('adminUser', JSON.stringify(result.user));
-                
-                // Show success message
-                toast.success('Login successful! Redirecting to admin dashboard...');
-                
-                // Close modal & redirect to admin dashboard
-                setTimeout(() => {
-                    closeAuthModal();
-                    window.location.href = "admin.html";
-                }, 1000);
-            } else {
-                toast.error(result.error || 'Login failed');
-=======
             // Sign in with Supabase Auth
             const { data: authData, error } = await supabase.auth.signInWithPassword({
                 email: ADMIN_EMAIL,
@@ -854,22 +781,28 @@ if (adminLoginFormSubmit) {
             } else if (!profile.is_admin) {
                 await supabase.auth.signOut();
                 throw new Error('Not admin');
->>>>>>> bd76b1ac5da89082c240eefed5fc44a143370125
             }
+
+            // Store session info
+            if (authData.session) {
+                localStorage.setItem('adminSession', JSON.stringify(authData.session));
+            }
+            localStorage.setItem('adminUser', JSON.stringify(user));
+            
+            // Show success message
+            toast.success('Admin login successful! Redirecting to admin dashboard...');
+
+            // Close modal & redirect to admin dashboard
+            setTimeout(() => {
+                closeAuthModal();
+                window.location.href = "admin.html";
+            }, 1000);
         } catch (error) {
-<<<<<<< HEAD
-            console.error('Login error:', error);
-            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                toast.error("Cannot connect to server. Please make sure:<br>1. The backend server is running (npm start)<br>2. Server is running on http://localhost:3000<br>3. No firewall is blocking the connection");
-            } else {
-                toast.error("Login failed: " + error.message);
-=======
             console.error('Admin login error:', error);
             if (error.message === 'Not admin') {
                 toast.error('Access denied. Admin privileges required.');
             } else {
                 toast.error(error.message || 'Admin login failed. Please check your credentials.');
->>>>>>> bd76b1ac5da89082c240eefed5fc44a143370125
             }
         }
     });
@@ -881,7 +814,6 @@ document.addEventListener('keydown', (e) => {
         if (serviceModal.classList.contains('show')) closeServiceModal();
         if (projectModal.classList.contains('show')) closeProjectModal();
         if (resumeModal.classList.contains('show')) closeResumeModal();
-        if (blogModal && blogModal.classList.contains('show')) closeBlogModal();
     }
 });
 
@@ -892,7 +824,7 @@ document.addEventListener('keydown', (e) => {
 const openResumeModalBtn = document.getElementById('openResumeModal');
 const resumeModal = document.getElementById('resumeModal');
 const closeResumeModalBtn = document.getElementById('closeResumeModal');
-const resumeModalOverlay = resumeModal.querySelector('.resume-modal__overlay');
+const resumeModalOverlay = resumeModal ? resumeModal.querySelector('.resume-modal__overlay') : null;
 
 const resumeFormStep = document.getElementById('resumeFormStep');
 const resumeTemplateStep = document.getElementById('resumeTemplateStep');
@@ -900,12 +832,14 @@ const resumeForm = document.getElementById('resumeForm');
 
 let resumeFormData = {};
 
-openResumeModalBtn.addEventListener('click', () => {
-    resumeModal.classList.add('show');
-    resumeFormStep.classList.add('active');
-    resumeTemplateStep.classList.remove('active');
-    document.body.style.overflow = 'hidden';
-});
+if (openResumeModalBtn && resumeModal && resumeFormStep && resumeTemplateStep) {
+  openResumeModalBtn.addEventListener('click', () => {
+      resumeModal.classList.add('show');
+      resumeFormStep.classList.add('active');
+      resumeTemplateStep.classList.remove('active');
+      document.body.style.overflow = 'hidden';
+  });
+}
 
 function closeResumeModal() {
     resumeModal.classList.remove('show');
@@ -916,18 +850,27 @@ function closeResumeModal() {
     resumeFormData = {};
 }
 
-closeResumeModalBtn.addEventListener('click', closeResumeModal);
-resumeModalOverlay.addEventListener('click', closeResumeModal);
+if (closeResumeModalBtn) {
+  closeResumeModalBtn.addEventListener('click', closeResumeModal);
+}
 
-resumeForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const formData = new FormData(resumeForm);
-    resumeFormData = Object.fromEntries(formData);
-    
-    resumeFormStep.classList.remove('active');
-    resumeTemplateStep.classList.add('active');
-});
+if (resumeModalOverlay) {
+  resumeModalOverlay.addEventListener('click', closeResumeModal);
+}
+
+if (resumeForm) {
+  resumeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(resumeForm);
+      resumeFormData = Object.fromEntries(formData);
+      
+      if (resumeFormStep && resumeTemplateStep) {
+        resumeFormStep.classList.remove('active');
+        resumeTemplateStep.classList.add('active');
+      }
+  });
+}
 
 document.querySelectorAll('.template-card').forEach(card => {
     card.addEventListener('click', () => {
@@ -1073,177 +1016,6 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(el);
     });
-
-    // Load dynamic about and homepage content for the public user page
-    loadPublicAbout();
-    loadPublicHomepage();
-    loadPublicServices();
-});
-
-// Load About content for the public user-facing page
-async function loadPublicAbout() {
-    try {
-        const res = await fetch('/api/about');
-        if (!res.ok) return; // nothing to do
-        const result = await res.json();
-        if (result && result.success && result.data) {
-            const data = result.data;
-            const missionEl = document.getElementById('about-mission');
-            const visionEl = document.getElementById('about-vision');
-            const valuesEl = document.getElementById('about-values');
-
-            if (missionEl) missionEl.innerHTML = data.mission || '';
-            if (visionEl) visionEl.innerHTML = data.vision || '';
-            if (valuesEl) valuesEl.innerHTML = data.values || '';
-        }
-    } catch (error) {
-        console.error('Failed to load public about content:', error);
-    }
-}
-
-// Load Homepage content for the public user-facing page
-async function loadPublicHomepage() {
-    try {
-        const res = await fetch('/api/homepage');
-        if (!res.ok) return;
-        const result = await res.json();
-        if (result && result.success && result.data) {
-            const data = result.data;
-            const heroTitle = document.querySelector('.hero-title');
-            const heroSubtitle = document.querySelector('.hero-subtitle');
-            const heroSection = document.querySelector('.hero-section');
-
-            if (heroTitle && data.title) heroTitle.innerHTML = data.title;
-            if (heroSubtitle && data.subtitle) heroSubtitle.innerHTML = data.subtitle;
-            if (heroSection && data.hero_image) {
-                heroSection.style.backgroundImage = `url('${data.hero_image}')`;
-                heroSection.style.backgroundSize = 'cover';
-                heroSection.style.backgroundPosition = 'center';
-            }
-        }
-    } catch (error) {
-        console.error('Failed to load public homepage content:', error);
-    }
-}
-
-// Load Services for the public user-facing page
-async function loadPublicServices() {
-    try {
-        const res = await fetch('/api/services');
-        if (!res.ok) return;
-        const result = await res.json();
-        if (result && result.success && Array.isArray(result.data)) {
-            const list = result.data;
-            const grid = document.querySelector('.services-grid');
-            if (!grid) return;
-            // Render each service as a card similar to the static markup
-            grid.innerHTML = list.map(s => {
-                const icon = s.icon || 'fas fa-cogs';
-                const title = s.title || 'Service';
-                const desc = (s.description || '').length > 140 ? (s.description || '').slice(0, 137) + '...' : (s.description || '');
-                const dataService = (s.category || '').toLowerCase() || '';
-                return `
-                    <div class="service-card" data-service="${dataService}">
-                      <div class="service-icon"><i class="${icon}"></i></div>
-                      <h3>${escapeHtml(title)}</h3>
-                      <p>${escapeHtml(desc)}</p>
-                      <button class="learn-more-btn" data-service="${dataService}">Learn More <i class="fas fa-arrow-right"></i></button>
-                    </div>
-                `;
-            }).join('');
-
-            // Re-bind learn-more buttons to open modals for predefined service keys if available
-            document.querySelectorAll('.learn-more-btn').forEach(btn => {
-                btn.removeEventListener('click', learnMoreHandler);
-                btn.addEventListener('click', learnMoreHandler);
-            });
-        }
-    } catch (error) {
-        console.error('Failed to load public services:', error);
-    }
-}
-
-// helper to open service modal when Learn More clicked (kept separate for attaching/removing)
-function learnMoreHandler(e) {
-    const service = e.target.closest('.learn-more-btn')?.dataset.service;
-    if (service && serviceData[service]) {
-        openServiceModal(serviceData[service]);
-    } else {
-        // If custom service, open a generic modal with the card content
-        const card = e.target.closest('.service-card');
-        if (!card) return;
-        const title = card.querySelector('h3')?.textContent || '';
-        const desc = card.querySelector('p')?.textContent || '';
-        openServiceModal({ title, description: desc, features: [], benefits: [] });
-    }
-}
-
-// simple HTML escaper for content coming from admin
-function escapeHtml(str) {
-    return String(str || '').replace(/[&<>"']/g, function (m) {
-        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
-    });
-}
-
-// Listen for broadcast updates from admin (same-origin tabs)
-try {
-    const bc = new BroadcastChannel('mastersolis_updates');
-    bc.addEventListener('message', (ev) => {
-        try {
-            const msg = ev.data;
-            if (!msg || !msg.type) return;
-            if (msg.type === 'about-updated') {
-                const data = msg.data || {};
-                const missionEl = document.getElementById('about-mission');
-                const visionEl = document.getElementById('about-vision');
-                const valuesEl = document.getElementById('about-values');
-
-                if (missionEl) missionEl.innerHTML = data.mission || '';
-                if (visionEl) visionEl.innerHTML = data.vision || '';
-                if (valuesEl) valuesEl.innerHTML = data.values || '';
-
-                // show a subtle toast to indicate content changed
-                if (typeof toast !== 'undefined') {
-                    toast.info('About content updated');
-                }
-            } else if (msg.type === 'services-updated') {
-                // Refresh services list when admin updates services
-                try { loadPublicServices(); } catch (err) { console.warn('Failed to reload services on broadcast:', err); }
-                if (typeof toast !== 'undefined') toast.info('Services updated');
-            }
-        } catch (err) {
-            console.error('Error handling broadcast message:', err);
-        }
-    });
-} catch (err) {
-    // BroadcastChannel not supported; ignore
-}
-
-// Storage-event fallback: listen for localStorage updates from admin page
-window.addEventListener('storage', (e) => {
-    try {
-        if (!e.key) return;
-        if (e.key === 'mastersolis_about_update' && e.newValue) {
-            const payload = JSON.parse(e.newValue);
-            const data = payload?.data || {};
-            const missionEl = document.getElementById('about-mission');
-            const visionEl = document.getElementById('about-vision');
-            const valuesEl = document.getElementById('about-values');
-
-            if (missionEl) missionEl.innerHTML = data.mission || '';
-            if (visionEl) visionEl.innerHTML = data.vision || '';
-            if (valuesEl) valuesEl.innerHTML = data.values || '';
-
-            if (typeof toast !== 'undefined') toast.info('About content updated');
-        }
-        if (e.key === 'mastersolis_services_update') {
-            // reload services when admin saved/deleted a service
-            try { loadPublicServices(); } catch (err) { console.warn('Failed to reload services on storage event:', err); }
-            if (typeof toast !== 'undefined') toast.info('Services updated');
-        }
-    } catch (err) {
-        console.error('Error handling storage event for about update:', err);
-    }
 });
 
 // ========================================
@@ -1341,8 +1113,6 @@ if (statsSection) {
 }
 
 // ========================================
-<<<<<<< HEAD
-=======
 // AUTH STATE MANAGEMENT
 // ========================================
 
@@ -1456,7 +1226,6 @@ if (document.readyState === 'loading') {
 }
 
 // ========================================
->>>>>>> bd76b1ac5da89082c240eefed5fc44a143370125
 // INITIALIZE
 // ========================================
 

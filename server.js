@@ -4,99 +4,9 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { createClient } = require('@supabase/supabase-js');
-const fs = require('fs');
-const path = require('path');
-
-// Local fallback storage for environments without Supabase or during dev
-const DATA_DIR = path.join(__dirname, 'data');
-const ABOUT_FILE = path.join(DATA_DIR, 'about.json');
-const HOME_FILE = path.join(DATA_DIR, 'homepage.json');
-const SERVICES_FILE = path.join(DATA_DIR, 'services.json');
-
-function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch (err) { console.warn('Failed to create data dir:', err); }
-  }
-}
-
-async function readAboutFile() {
-  try {
-    ensureDataDir();
-    if (!fs.existsSync(ABOUT_FILE)) return null;
-    const txt = fs.readFileSync(ABOUT_FILE, 'utf8');
-    return JSON.parse(txt || 'null');
-  } catch (err) {
-    console.warn('readAboutFile error:', err);
-    return null;
-  }
-}
-
-async function writeAboutFile(obj) {
-  try {
-    ensureDataDir();
-    fs.writeFileSync(ABOUT_FILE, JSON.stringify(obj || {}, null, 2), 'utf8');
-    return obj;
-  } catch (err) {
-    console.warn('writeAboutFile error:', err);
-    return null;
-  }
-}
-
-async function readHomepageFile() {
-  try {
-    ensureDataDir();
-    if (!fs.existsSync(HOME_FILE)) return null;
-    const txt = fs.readFileSync(HOME_FILE, 'utf8');
-    return JSON.parse(txt || 'null');
-  } catch (err) {
-    console.warn('readHomepageFile error:', err);
-    return null;
-  }
-}
-
-async function writeHomepageFile(obj) {
-  try {
-    ensureDataDir();
-    fs.writeFileSync(HOME_FILE, JSON.stringify(obj || {}, null, 2), 'utf8');
-    return obj;
-  } catch (err) {
-    console.warn('writeHomepageFile error:', err);
-    return null;
-  }
-}
-
-async function readServicesFile() {
-  try {
-    ensureDataDir();
-    if (!fs.existsSync(SERVICES_FILE)) return [];
-    const txt = fs.readFileSync(SERVICES_FILE, 'utf8');
-    return JSON.parse(txt || '[]');
-  } catch (err) {
-    console.warn('readServicesFile error:', err);
-    return [];
-  }
-}
-
-async function writeServicesFile(arr) {
-  try {
-    ensureDataDir();
-    fs.writeFileSync(SERVICES_FILE, JSON.stringify(arr || [], null, 2), 'utf8');
-    return arr;
-  } catch (err) {
-    console.warn('writeServicesFile error:', err);
-    return null;
-  }
-}
 
 const app = express();
-// Defensive PORT parsing: handle values like "3000 ;" or non-numeric env values
-const rawPort = process.env.PORT;
-const PORT = (() => {
-  if (!rawPort) return 3000;
-  // parseInt will extract leading number from strings like '3000 ;'
-  const p = parseInt(String(rawPort).trim(), 10);
-  return Number.isNaN(p) ? 3000 : p;
-})();
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
@@ -258,31 +168,18 @@ app.get('/api/auth/verify', authenticateToken, (req, res) => {
 // Get homepage content
 app.get('/api/homepage', async (req, res) => {
   try {
-    // Try Supabase first
-    try {
-      const { data, error } = await supabase
-        .from('homepage')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+    const { data, error } = await supabase
+      .from('homepage')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
-      if (data) {
-        try { await writeHomepageFile(data); } catch (e) { /* ignore */ }
-        return res.json({ success: true, data });
-      }
-      // no data in supabase -> fallthrough
-    } catch (supErr) {
-      console.warn('Supabase get /api/homepage failed, falling back to file:', supErr && supErr.message);
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      throw error;
     }
 
-    // File fallback
-    const fileData = await readHomepageFile();
-    return res.json({ success: true, data: fileData || null });
+    res.json({ success: true, data: data || null });
   } catch (error) {
     console.error('Get homepage error:', error);
     res.status(500).json({ error: 'Failed to fetch homepage content' });
@@ -321,70 +218,50 @@ app.post('/api/homepage', authenticateToken, async (req, res) => {
     const { title, subtitle, description, hero_image, stats } = req.body;
 
     // Check if homepage exists
-    // Try Supabase first but keep local backup
-    try {
-      const { data: existing } = await supabase
+    const { data: existing } = await supabase
+      .from('homepage')
+      .select('id')
+      .limit(1)
+      .single();
+
+    let result;
+    if (existing) {
+      // Update existing
+      const { data, error } = await supabase
         .from('homepage')
-        .select('id')
-        .limit(1)
+        .update({
+          title,
+          subtitle,
+          description,
+          hero_image,
+          stats,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existing.id)
+        .select()
         .single();
 
-      let result;
-      if (existing) {
-        const { data, error } = await supabase
-          .from('homepage')
-          .update({
-            title,
-            subtitle,
-            description,
-            hero_image,
-            stats,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existing.id)
-          .select()
-          .single();
+      if (error) throw error;
+      result = data;
+    } else {
+      // Create new
+      const { data, error } = await supabase
+        .from('homepage')
+        .insert({
+          title,
+          subtitle,
+          description,
+          hero_image,
+          stats
+        })
+        .select()
+        .single();
 
-        if (error) throw error;
-        result = data;
-      } else {
-        const { data, error } = await supabase
-          .from('homepage')
-          .insert({
-            title,
-            subtitle,
-            description,
-            hero_image,
-            stats
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        result = data;
-      }
-
-      // Write a local backup (best-effort)
-      try { await writeHomepageFile(result); } catch (e) { console.warn('Failed to write local homepage backup:', e); }
-
-      return res.json({ success: true, data: result });
-    } catch (supErr) {
-      console.warn('Supabase write /api/homepage failed, using local file fallback:', supErr && supErr.message);
-
-      const fallback = {
-        title: title || '',
-        subtitle: subtitle || '',
-        description: description || '',
-        hero_image: hero_image || null,
-        stats: stats || null,
-        updated_at: new Date().toISOString()
-      };
-
-      const saved = await writeHomepageFile(fallback);
-      if (saved) return res.json({ success: true, data: saved });
-
-      throw supErr;
+      if (error) throw error;
+      result = data;
     }
+
+    res.json({ success: true, data: result });
   } catch (error) {
     console.error('Create/Update homepage error:', error);
     res.status(500).json({ error: 'Failed to save homepage content' });
@@ -446,33 +323,18 @@ app.delete('/api/homepage/:id', authenticateToken, async (req, res) => {
 // Get about content
 app.get('/api/about', async (req, res) => {
   try {
-    // Try Supabase first
-    try {
-      const { data, error } = await supabase
-        .from('about')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+    const { data, error } = await supabase
+      .from('about')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
-      // If supabase has data, return it and also write a local backup
-      if (data) {
-        try { await writeAboutFile(data); } catch (e) { /* ignore */ }
-        return res.json({ success: true, data });
-      }
-      // No data in supabase -> fallthrough to file fallback
-    } catch (supErr) {
-      console.warn('Supabase get /api/about failed, falling back to file:', supErr && supErr.message);
-      // fall through to file fallback
+    if (error && error.code !== 'PGRST116') {
+      throw error;
     }
 
-    // File fallback
-    const fileData = await readAboutFile();
-    return res.json({ success: true, data: fileData || null });
+    res.json({ success: true, data: data || null });
   } catch (error) {
     console.error('Get about error:', error);
     res.status(500).json({ error: 'Failed to fetch about content' });
@@ -483,74 +345,49 @@ app.get('/api/about', async (req, res) => {
 app.post('/api/about', authenticateToken, async (req, res) => {
   try {
     const { mission, vision, values, journey, team } = req.body;
-    // Try Supabase first, but always keep a local backup
-    try {
-      const { data: existing } = await supabase
+
+    const { data: existing } = await supabase
+      .from('about')
+      .select('id')
+      .limit(1)
+      .single();
+
+    let result;
+    if (existing) {
+      const { data, error } = await supabase
         .from('about')
-        .select('id')
-        .limit(1)
+        .update({
+          mission,
+          vision,
+          values,
+          journey,
+          team,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existing.id)
+        .select()
         .single();
 
-      let result;
-      if (existing) {
-        const { data, error } = await supabase
-          .from('about')
-          .update({
-            mission,
-            vision,
-            values,
-            journey,
-            team,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existing.id)
-          .select()
-          .single();
+      if (error) throw error;
+      result = data;
+    } else {
+      const { data, error } = await supabase
+        .from('about')
+        .insert({
+          mission,
+          vision,
+          values,
+          journey,
+          team
+        })
+        .select()
+        .single();
 
-        if (error) throw error;
-        result = data;
-      } else {
-        const { data, error } = await supabase
-          .from('about')
-          .insert({
-            mission,
-            vision,
-            values,
-            journey,
-            team
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        result = data;
-      }
-
-      // Write a local backup (best-effort)
-      try { await writeAboutFile(result); } catch (e) { console.warn('Failed to write local about backup:', e); }
-
-      return res.json({ success: true, data: result });
-    } catch (supErr) {
-      console.warn('Supabase write /api/about failed, using local file fallback:', supErr && supErr.message);
-
-      // Try to persist to local file as fallback
-      const fallback = {
-        mission: mission || '',
-        vision: vision || '',
-        values: values || '',
-        journey: journey || null,
-        team: team || null,
-        updated_at: new Date().toISOString()
-      };
-
-      const saved = await writeAboutFile(fallback);
-      if (saved) {
-        return res.json({ success: true, data: saved });
-      }
-
-      // If even file write failed, return error
-      throw supErr;
+      if (error) throw error;
+      result = data;
     }
+
+    res.json({ success: true, data: result });
   } catch (error) {
     console.error('Create/Update about error:', error);
     res.status(500).json({ error: 'Failed to save about content' });
@@ -612,25 +449,14 @@ app.delete('/api/about/:id', authenticateToken, async (req, res) => {
 // Get all services
 app.get('/api/services', async (req, res) => {
   try {
-    // Try Supabase first
-    try {
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-      if (error) throw error;
+    if (error) throw error;
 
-      // Write local backup of services (best-effort)
-      try { await writeServicesFile(data || []); } catch (e) { /* ignore */ }
-      return res.json({ success: true, data: data || [] });
-    } catch (supErr) {
-      console.warn('Supabase get /api/services failed, falling back to file:', supErr && supErr.message);
-    }
-
-    // File fallback
-    const fileData = await readServicesFile();
-    res.json({ success: true, data: fileData || [] });
+    res.json({ success: true, data: data || [] });
   } catch (error) {
     console.error('Get services error:', error);
     res.status(500).json({ error: 'Failed to fetch services' });
@@ -641,24 +467,16 @@ app.get('/api/services', async (req, res) => {
 app.get('/api/services/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    // Try Supabase first
-    try {
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .eq('id', id)
-        .single();
 
-      if (error) throw error;
-      return res.json({ success: true, data });
-    } catch (supErr) {
-      console.warn('Supabase get /api/services/:id failed, falling back to file:', supErr && supErr.message);
-    }
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    // File fallback
-    const list = await readServicesFile();
-    const found = list.find(s => String(s.id) === String(id));
-    return res.json({ success: true, data: found || null });
+    if (error) throw error;
+
+    res.json({ success: true, data });
   } catch (error) {
     console.error('Get service error:', error);
     res.status(500).json({ error: 'Failed to fetch service' });
@@ -673,57 +491,23 @@ app.post('/api/services', authenticateToken, async (req, res) => {
     if (!title || !description) {
       return res.status(400).json({ error: 'Title and description are required' });
     }
-    // Try Supabase first
-    try {
-      const { data, error } = await supabase
-        .from('services')
-        .insert({
-          title,
-          description,
-          icon,
-          features,
-          benefits,
-          category
-        })
-        .select()
-        .single();
 
-      if (error) throw error;
-
-      // Append to local backup list (best-effort)
-      try {
-        const list = await readServicesFile();
-        // Supabase returns the created record (may have numeric id)
-        list.unshift(data);
-        await writeServicesFile(list);
-      } catch (e) { /* ignore */ }
-
-      return res.json({ success: true, data });
-    } catch (supErr) {
-      console.warn('Supabase write /api/services failed, falling back to file:', supErr && supErr.message);
-
-      // Fallback to local file
-      const list = await readServicesFile();
-      const id = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
-      const now = new Date().toISOString();
-      const entry = {
-        id,
+    const { data, error } = await supabase
+      .from('services')
+      .insert({
         title,
         description,
-        icon: icon || null,
-        features: features || null,
-        benefits: benefits || null,
-        category: category || null,
-        created_at: now,
-        updated_at: now
-      };
+        icon,
+        features,
+        benefits,
+        category
+      })
+      .select()
+      .single();
 
-      list.unshift(entry);
-      const saved = await writeServicesFile(list);
-      if (saved) return res.json({ success: true, data: entry });
+    if (error) throw error;
 
-      throw supErr;
-    }
+    res.json({ success: true, data });
   } catch (error) {
     console.error('Create service error:', error);
     res.status(500).json({ error: 'Failed to create service' });
@@ -764,32 +548,15 @@ app.put('/api/services/:id', authenticateToken, async (req, res) => {
 app.delete('/api/services/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    // Try Supabase first
-    try {
-      const { error } = await supabase
-        .from('services')
-        .delete()
-        .eq('id', id);
 
-      if (error) throw error;
+    const { error } = await supabase
+      .from('services')
+      .delete()
+      .eq('id', id);
 
-      // Remove from local backup list (best-effort)
-      try {
-        const list = await readServicesFile();
-        const filtered = list.filter(s => String(s.id) !== String(id));
-        await writeServicesFile(filtered);
-      } catch (e) { /* ignore */ }
+    if (error) throw error;
 
-      return res.json({ success: true, message: 'Service deleted successfully' });
-    } catch (supErr) {
-      console.warn('Supabase delete /api/services/:id failed, attempting local-file delete:', supErr && supErr.message);
-
-      // File fallback: remove by id from services file
-      const list = await readServicesFile();
-      const filtered = list.filter(s => String(s.id) !== String(id));
-      await writeServicesFile(filtered);
-      return res.json({ success: true, message: 'Service deleted (local fallback)' });
-    }
+    res.json({ success: true, message: 'Service deleted successfully' });
   } catch (error) {
     console.error('Delete service error:', error);
     res.status(500).json({ error: 'Failed to delete service' });
@@ -851,6 +618,64 @@ app.get('/api/contact-messages/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Create contact message (public endpoint)
+app.post('/api/contact-messages', async (req, res) => {
+  try {
+    const { name, email, phone, subject, message } = req.body;
+
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ error: 'Name, email, subject, and message are required' });
+    }
+
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .insert({
+        name,
+        email,
+        phone: phone || null,
+        subject,
+        message
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Create contact message error:', error);
+    res.status(500).json({ error: 'Failed to create contact message' });
+  }
+});
+
+// Update contact message
+app.put('/api/contact-messages/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, phone, subject, message } = req.body;
+
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .update({
+        name,
+        email,
+        phone: phone || null,
+        subject,
+        message
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Update contact message error:', error);
+    res.status(500).json({ error: 'Failed to update contact message' });
+  }
+});
+
 // Delete contact message
 app.delete('/api/contact-messages/:id', authenticateToken, async (req, res) => {
   try {
@@ -867,6 +692,395 @@ app.delete('/api/contact-messages/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Delete contact message error:', error);
     res.status(500).json({ error: 'Failed to delete contact message' });
+  }
+});
+
+// ========================================
+// USER PROFILES ROUTES
+// ========================================
+
+// Get user profile
+app.get('/api/profiles/:userId', authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Users can only view their own profile unless admin
+    if (req.user.role !== 'admin' && req.user.id !== userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+
+    res.json({ success: true, data: data || null });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
+
+// Update user profile
+app.put('/api/profiles/:userId', authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { full_name } = req.body;
+
+    // Users can only update their own profile unless admin
+    if (req.user.role !== 'admin' && req.user.id !== userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        full_name,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+// ========================================
+// RESUMES ROUTES
+// ========================================
+
+// Get user's resumes
+app.get('/api/resumes', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const { data, error } = await supabase
+      .from('resumes')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({ success: true, data: data || [] });
+  } catch (error) {
+    console.error('Get resumes error:', error);
+    res.status(500).json({ error: 'Failed to fetch resumes' });
+  }
+});
+
+// Get single resume
+app.get('/api/resumes/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const { data, error } = await supabase
+      .from('resumes')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    // Users can only view their own resumes unless admin
+    if (req.user.role !== 'admin' && data.user_id !== userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Get resume error:', error);
+    res.status(500).json({ error: 'Failed to fetch resume' });
+  }
+});
+
+// Create resume
+app.post('/api/resumes', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name, email, phone, experience, skills, education, ai_summary } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+
+    // Set previous resumes to not latest
+    await supabase
+      .from('resumes')
+      .update({ latest_active: false })
+      .eq('user_id', userId);
+
+    const { data, error } = await supabase
+      .from('resumes')
+      .insert({
+        user_id: userId,
+        name,
+        email,
+        phone: phone || null,
+        experience: experience || null,
+        skills: Array.isArray(skills) ? skills : (skills ? [skills] : []),
+        education: education || null,
+        ai_summary: ai_summary || null,
+        latest_active: true
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Create resume error:', error);
+    res.status(500).json({ error: 'Failed to create resume' });
+  }
+});
+
+// Update resume
+app.put('/api/resumes/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const { name, email, phone, experience, skills, education, ai_summary, latest_active } = req.body;
+
+    // Check if user owns this resume
+    const { data: existing } = await supabase
+      .from('resumes')
+      .select('user_id')
+      .eq('id', id)
+      .single();
+
+    if (!existing) {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+
+    if (req.user.role !== 'admin' && existing.user_id !== userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // If setting as latest, unset others
+    if (latest_active) {
+      await supabase
+        .from('resumes')
+        .update({ latest_active: false })
+        .eq('user_id', existing.user_id);
+    }
+
+    const { data, error } = await supabase
+      .from('resumes')
+      .update({
+        name,
+        email,
+        phone: phone || null,
+        experience: experience || null,
+        skills: Array.isArray(skills) ? skills : (skills ? [skills] : []),
+        education: education || null,
+        ai_summary: ai_summary || null,
+        latest_active: latest_active !== undefined ? latest_active : existing.latest_active,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Update resume error:', error);
+    res.status(500).json({ error: 'Failed to update resume' });
+  }
+});
+
+// Delete resume
+app.delete('/api/resumes/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Check if user owns this resume
+    const { data: existing } = await supabase
+      .from('resumes')
+      .select('user_id')
+      .eq('id', id)
+      .single();
+
+    if (!existing) {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+
+    if (req.user.role !== 'admin' && existing.user_id !== userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { error } = await supabase
+      .from('resumes')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.json({ success: true, message: 'Resume deleted successfully' });
+  } catch (error) {
+    console.error('Delete resume error:', error);
+    res.status(500).json({ error: 'Failed to delete resume' });
+  }
+});
+
+// ========================================
+// JOBS ROUTES (for completeness)
+// ========================================
+
+// Get all jobs
+app.get('/api/jobs', async (req, res) => {
+  try {
+    const { status } = req.query;
+    let query = supabase
+      .from('jobs')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    res.json({ success: true, data: data || [] });
+  } catch (error) {
+    console.error('Get jobs error:', error);
+    res.status(500).json({ error: 'Failed to fetch jobs' });
+  }
+});
+
+// Get single job
+app.get('/api/jobs/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from('jobs')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Get job error:', error);
+    res.status(500).json({ error: 'Failed to fetch job' });
+  }
+});
+
+// Create job (admin only)
+app.post('/api/jobs', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    const { title, description, location, type, salary_range, requirements, responsibilities, skills, department, status } = req.body;
+
+    if (!title || !description || !location || !type) {
+      return res.status(400).json({ error: 'Title, description, location, and type are required' });
+    }
+
+    const { data, error } = await supabase
+      .from('jobs')
+      .insert({
+        title,
+        description,
+        location,
+        type,
+        salary_range: salary_range || null,
+        requirements: Array.isArray(requirements) ? requirements : [],
+        responsibilities: Array.isArray(responsibilities) ? responsibilities : [],
+        skills: Array.isArray(skills) ? skills : [],
+        department: department || null,
+        status: status || 'open'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Create job error:', error);
+    res.status(500).json({ error: 'Failed to create job' });
+  }
+});
+
+// Update job (admin only)
+app.put('/api/jobs/:id', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    const { id } = req.params;
+    const { title, description, location, type, salary_range, requirements, responsibilities, skills, department, status } = req.body;
+
+    const { data, error } = await supabase
+      .from('jobs')
+      .update({
+        title,
+        description,
+        location,
+        type,
+        salary_range: salary_range || null,
+        requirements: Array.isArray(requirements) ? requirements : [],
+        responsibilities: Array.isArray(responsibilities) ? responsibilities : [],
+        skills: Array.isArray(skills) ? skills : [],
+        department: department || null,
+        status: status || 'open',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Update job error:', error);
+    res.status(500).json({ error: 'Failed to update job' });
+  }
+});
+
+// Delete job (admin only)
+app.delete('/api/jobs/:id', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    const { id } = req.params;
+
+    const { error } = await supabase
+      .from('jobs')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.json({ success: true, message: 'Job deleted successfully' });
+  } catch (error) {
+    console.error('Delete job error:', error);
+    res.status(500).json({ error: 'Failed to delete job' });
   }
 });
 

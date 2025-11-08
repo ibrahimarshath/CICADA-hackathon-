@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>View Resume - Mastersolis Infotech</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-wrapper">
+        <div class="logo">
+          <i class="fas fa-bolt"></i>
+          <span>Mastersolis Infotech</span>
+        </div>
+        <ul class="nav-menu">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="jobs.html" class="nav-link">Careers</a></li>
+          <li><a href="my-applications.html" class="nav-link">My Applications</a></li>
+          <li><a href="profile.html" class="nav-link">Profile</a></li>
+          <li>
+            <button class="login-btn" id="logoutBtn" style="display: none;">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+            <button class="login-btn" id="loginBtn" style="display: none;">
+              <i class="fas fa-user"></i> Login
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section class="careers-section section-padding" style="padding-top: 120px;">
+    <div class="container">
+      <div id="resumeViewContent" style="max-width: 900px; margin: 0 auto;">
+        <div style="margin-bottom: 2rem;">
+          <a href="profile.html" style="color: var(--primary-dark); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+          </a>
+        </div>
+
+        <div id="resumeDisplay" class="contact-form-wrapper" style="background: white; padding: 3rem;">
+          <div style="text-align: center; padding: 3rem; color: var(--gray);">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <p>Loading resume...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2025 Mastersolis Infotech. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <link rel="stylesheet" href="toast.css"/>
+  <script src="toast.js"></script>
+  <script type="module" src="resume-view.js"></script>
+</body>
+</html>
+

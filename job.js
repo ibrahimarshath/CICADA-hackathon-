@@ -1,10 +1,9 @@
 // Initialize Supabase
 const SUPABASE_URL = "https://jqxaufurcholgqwskybi.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxeGF1ZnVyY2hvbGdxd3NreWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MTQyODUsImV4cCI6MjA3ODA5MDI4NX0.FYMlEiIecY00FKoE9jq3L8hI8fzNqQ3w7DLBiiWAy_g";
-const SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxeGF1ZnVyY2hvbGdxd3NreWJpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUxNDI4NSwiZXhwIjoyMDc4MDkwMjg1fQ.j7liEK4JaMu74tQOBOu9ExkRbz87kz9NpZWsPppTP-o";
 
+// Use anon key - RLS is disabled, so anon key has full access to all tables
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const supabaseAdmin = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // Get job ID from URL
 const urlParams = new URLSearchParams(window.location.search);
@@ -334,7 +333,14 @@ document.getElementById('applicationForm').addEventListener('submit', async (e) 
       throw new Error('Failed to upload resume: ' + uploadError.message);
     }
 
-    // Step 2: Insert application into database
+    // Step 2: Get public URL for resume
+    const { data: urlData } = await supabase.storage
+      .from('resumes')
+      .getPublicUrl(path);
+    
+    const publicUrl = urlData?.publicUrl || '';
+
+    // Step 3: Insert application into database
     const applicationData = {
       job_id: jobId,
       user_id: currentUser.id,
@@ -344,6 +350,7 @@ document.getElementById('applicationForm').addEventListener('submit', async (e) 
       phone: formData.get('phone') || null,
       cover_letter: formData.get('cover_letter') || null,
       resume_path: path, // Store the path for signed URL generation
+      resume_url: publicUrl,
       status: 'pending'
     };
 
@@ -355,39 +362,9 @@ document.getElementById('applicationForm').addEventListener('submit', async (e) 
 
     if (insertError) throw insertError;
 
-    // Step 3: Call edge function to send confirmation email
-    try {
-      const edgeFunctionUrl = `https://jqxaufurcholgqwskybi.supabase.co/functions/v1/send-application-confirmation`;
-      
-      const emailResponse = await fetch(edgeFunctionUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          applicationData: {
-            name: applicationData.name,
-            email: applicationData.email,
-            phone: applicationData.phone,
-            position: document.querySelector('#jobDetails h1')?.textContent?.trim() || 'Position', // Job title
-            resume_url: publicUrl
-          }
-        })
-      });
-
-      const emailResult = await emailResponse.json();
-      if (!emailResponse.ok) {
-        console.warn('Email sending failed:', emailResult);
-        // Don't fail the application if email fails
-      }
-    } catch (emailError) {
-      console.warn('Error sending confirmation email:', emailError);
-      // Don't fail the application if email fails
-    }
-
-    // Step 4: Show success message
-    toast.success('Application submitted successfully! We will review your application and get back to you soon.');
+    // Step 4: Show success popup/modal
+    showApplicationSuccessModal(applicationData.name, document.querySelector('#jobDetails h1')?.textContent?.trim() || 'Position');
+    
     form.reset();
     
     // Scroll to top
@@ -401,4 +378,100 @@ document.getElementById('applicationForm').addEventListener('submit', async (e) 
     submitBtn.innerHTML = originalText;
   }
 });
+
+// Show application success modal
+function showApplicationSuccessModal(name, jobTitle) {
+  const modal = document.createElement('div');
+  modal.id = 'applicationSuccessModal';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+  `;
+  
+  modal.innerHTML = `
+    <div style="
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 3rem;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      box-shadow: var(--shadow-xl);
+      animation: slideUp 0.3s ease;
+    ">
+      <div style="
+        width: 80px;
+        height: 80px;
+        background: var(--gradient-success);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        animation: scaleIn 0.5s ease;
+      ">
+        <i class="fas fa-check" style="font-size: 2.5rem; color: white;"></i>
+      </div>
+      <h2 style="color: var(--dark); margin-bottom: 1rem; font-size: 1.75rem;">Application Submitted!</h2>
+      <p style="color: var(--gray); margin-bottom: 1.5rem; line-height: 1.6;">
+        Thank you, <strong>${name}</strong>! Your application for <strong>${jobTitle}</strong> has been submitted successfully.
+      </p>
+      <p style="color: var(--gray); margin-bottom: 2rem; font-size: 0.9rem;">
+        We will review your application and get back to you soon. You can track your application status in your profile.
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <button onclick="closeApplicationSuccessModal()" class="btn btn-primary" style="min-width: 150px;">
+          <i class="fas fa-check"></i> OK
+        </button>
+        <a href="profile.html" class="btn btn-outline" style="min-width: 150px; color: var(--primary-dark); border-color: var(--primary-dark);">
+          <i class="fas fa-user"></i> View Profile
+        </a>
+      </div>
+    </div>
+  `;
+  
+  // Add animations
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  document.body.appendChild(modal);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeApplicationSuccessModal() {
+  const modal = document.getElementById('applicationSuccessModal');
+  if (modal) {
+    modal.style.animation = 'fadeOut 0.3s ease';
+    setTimeout(() => {
+      modal.remove();
+      document.body.style.overflow = '';
+    }, 300);
+  }
+}
+
+// Make function globally available
+window.closeApplicationSuccessModal = closeApplicationSuccessModal;
 
