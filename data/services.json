@@ -1,0 +1,56 @@
+[
+  {
+    "id": "0c7f9b3f-16c0-411c-ac58-f1f135a761ae",
+    "title": "AI & Machine Learning",
+    "description": "Harness the power of AI to automate processes, gain insights, and drive innovation.",
+    "icon": "fas fa-brain",
+    "category": "ai",
+    "features": [
+      "Custom AI model development",
+      "Natural Language Processing",
+      "Computer Vision"
+    ],
+    "benefits": [
+      "Reduce operational costs by 40%",
+      "Improve decision-making with data-driven insights"
+    ],
+    "created_at": "2025-11-08T01:32:47.851194+00:00",
+    "updated_at": "2025-11-08T01:32:47.851194+00:00"
+  },
+  {
+    "id": "afcf4507-9cea-42ec-a6c3-b25c4e51217d",
+    "title": "Custom Software Development",
+    "description": "Scalable, secure, and tailored software solutions built for your specific needs.",
+    "icon": "fas fa-code",
+    "category": "software",
+    "features": [
+      "Full-stack web application development",
+      "Enterprise software solutions",
+      "API development"
+    ],
+    "benefits": [
+      "Tailored solutions that fit your exact requirements",
+      "Scalable architecture for future growth"
+    ],
+    "created_at": "2025-11-08T01:32:47.851194+00:00",
+    "updated_at": "2025-11-08T01:32:47.851194+00:00"
+  },
+  {
+    "id": "3352baa3-c025-4674-b661-add35ef10850",
+    "title": "Cloud Solutions",
+    "description": "Migrate, manage, and optimize your infrastructure with cutting-edge cloud technology.",
+    "icon": "fas fa-cloud",
+    "category": "cloud",
+    "features": [
+      "Cloud migration and deployment",
+      "Multi-cloud strategies",
+      "Infrastructure as Code"
+    ],
+    "benefits": [
+      "Reduce infrastructure costs by 50%",
+      "Improve scalability and flexibility"
+    ],
+    "created_at": "2025-11-08T01:32:47.851194+00:00",
+    "updated_at": "2025-11-08T01:32:47.851194+00:00"
+  }
+]

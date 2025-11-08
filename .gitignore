@@ -5,7 +5,6 @@ yarn.lock
 
 # Environment variables
 .env
-.env.local
 
 # Logs
 logs
@@ -29,5 +28,3 @@ Thumbs.db
 dist/
 build/
 
-# Supabase
-.supabase/
